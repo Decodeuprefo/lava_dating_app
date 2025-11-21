@@ -1,0 +1,52 @@
+name: lava_dating_app
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  get: ^4.6.6
+  flutter_svg: ^2.2.2
+  image_picker: ^1.2.0
+  permission_handler: ^12.0.1
+  #  flutter_plugin_android_lifecycle: ^2.0.4
+  glassmorphism: ^3.0.0
+  #  video_player: ^2.10.0
+  chewie: ^1.7.1
+  #  video_thumbnail: ^0.5.3
+  #  ffmpeg_kit_flutter_new: ^4.1.0
+  #  path_provider: ^2.1.1
+#  liquid_glass_renderer: ^0.1.1-dev.6  # Disabled - Impeller compatibility issues
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/icons/InterestsHobbies/
+    - assets/icons/RelationType/
+    - assets/icons/HomeSplash/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+
+
