@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lava_dating_app/View/authModule/login_screen.dart';
+import 'package:lava_dating_app/View/welcomeModule/welcome_one_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
-      Get.off(() => const LoginScreen());
+      Get.off(() => const WelcomeOneScreen());
     });
   }
 

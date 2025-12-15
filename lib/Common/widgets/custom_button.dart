@@ -237,7 +237,7 @@ class AppButton extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       textAlign: TextAlign.center,
-      style: CommonTextStyle.regular16w500,
+      style: textStyle ?? CommonTextStyle.regular16w500,
     );
 
     // If icon at start, add it
@@ -330,9 +330,9 @@ class AppButton extends StatelessWidget {
   /// Build appropriate shape for Material / InkWell.
   ShapeBorder _buildShape(BorderRadius resolvedRadius) {
     if (shape == AppButtonShape.circle) {
-      return CircleBorder(side: BorderSide.none);
+      return const CircleBorder(side: BorderSide.none);
     } else if (shape == AppButtonShape.stadium) {
-      return StadiumBorder();
+      return const StadiumBorder();
     } else {
       return RoundedRectangleBorder(borderRadius: resolvedRadius);
     }
@@ -452,7 +452,7 @@ class ExampleLoadingAndDisabled extends StatelessWidget {
           backgroundColor: Colors.blue,
           loadingIndicatorColor: Colors.white,
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         // Disabled button (no onPressed or enabled=false)
         AppButton(
           text: 'Submit',

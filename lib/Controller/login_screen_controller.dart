@@ -10,9 +10,7 @@ class LoginScreenController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   bool isPasswordVisible = false;
 
-  /// To validate email
   String? validateEmail(String value) {
-    // Email regex pattern
     String pattern = StringConstants.regExp;
     RegExp regex = RegExp(pattern);
 
@@ -25,13 +23,11 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// To alter the value of isPasswordVisible variable
   void changeIsPasswordVisible() {
     isPasswordVisible = !isPasswordVisible;
     update();
   }
 
-  /// To validate password
   String? validatePassword(String value) {
     if (value.isEmpty) {
       return StringConstants.emptyPasswordValidation;

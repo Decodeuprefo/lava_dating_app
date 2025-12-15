@@ -27,90 +27,133 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BackgroundContainer(
-          child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            heightSpace(80),
-            Center(
-              child: Image.asset(
-                'assets/images/app_logo.png',
-                width: 94,
-                height: 80,
-              ),
-            ),
-            heightSpace(20),
-            const Text(
-              'Forgot Your Password?',
-              style: CommonTextStyle.semiBold30w600,
-            ),
-            const Text(
-              "No worries! Enter your registered email address, and we’ll send you instructions to reset your password.",
-              style: CommonTextStyle.regular14w400,
-            ),
-            Image.asset(
-              "assets/images/forgot_screen_placeholder.png",
-              fit: BoxFit.fill,
-            ),
-            TextFormFieldWidget(
-              controller: signInScreenController.emailController,
-              focusNode: signInScreenController.emailFocusNode,
-              prefixIcon: SvgPicture.asset(
-                "assets/icons/massage_icon.svg",
-                height: 24,
-                width: 24,
-                fit: BoxFit.fill,
-              ),
-              hint: StringConstants.emailAddress,
-              validator: (value) => signInScreenController.validateEmail(value!),
-              onFieldSubmitted: (p0) {
-                FocusScope.of(context).requestFocus(signInScreenController.emailFocusNode);
-              },
-              inputFormatters: [
-                CustomFormatterForSpaceAndEmoji(),
-              ],
-              textInputAction: TextInputAction.next,
-              textInputType: TextInputType.emailAddress,
-            ),
-            heightSpace(30),
-            AppButton(
-              text: "Send Reset Link",
-              textStyle: CommonTextStyle.regular16w500,
-              onPressed: () {
-                setState(() {});
-                FocusManager.instance.primaryFocus?.unfocus();
-                if (_formKey.currentState?.validate() ?? false) {}
-              },
-            ),
-            heightSpace(30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Back to ",
-                  style: CommonTextStyle.regular14w400.copyWith(color: ColorConstants.offGrey),
+          child: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              heightSpace(35),
+              Center(
+                child: Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 94,
+                  height: 80,
                 ),
-                InkWell(
-                  onTap: () {
-                    // Get.to(const LoginScreen());
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Login',
-                    style:
-                        CommonTextStyle.regular14w400.copyWith(color: ColorConstants.lightOrange),
+              ),
+              heightSpace(20),
+              const Text(
+                'Forgot Your Password?',
+                style: CommonTextStyle.semiBold30w600,
+              ),
+              const Text(
+                "No worries! Enter your registered email address, and we’ll send you instructions to reset your password.",
+                style: CommonTextStyle.regular14w400,
+              ),
+              heightSpace(60),
+              centerImagePlaceHolder(),
+              heightSpace(50),
+              TextFormFieldWidget(
+                controller: signInScreenController.emailController,
+                focusNode: signInScreenController.emailFocusNode,
+                prefixIcon: SvgPicture.asset(
+                  "assets/icons/massage_icon.svg",
+                  height: 24,
+                  width: 24,
+                  fit: BoxFit.fill,
+                ),
+                hint: StringConstants.emailAddress,
+                validator: (value) => signInScreenController.validateEmail(value!),
+                onFieldSubmitted: (p0) {
+                  FocusScope.of(context).requestFocus(signInScreenController.emailFocusNode);
+                },
+                inputFormatters: [
+                  CustomFormatterForSpaceAndEmoji(),
+                ],
+                textInputAction: TextInputAction.next,
+                textInputType: TextInputType.emailAddress,
+              ),
+              heightSpace(30),
+              AppButton(
+                text: "Send Reset Link",
+                textStyle: CommonTextStyle.regular16w500,
+                onPressed: () {
+                  setState(() {});
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  if (_formKey.currentState?.validate() ?? false) {}
+                },
+              ),
+              heightSpace(30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Back to ",
+                    style: CommonTextStyle.regular14w400.copyWith(color: ColorConstants.offGrey),
                   ),
-                )
+                  InkWell(
+                    onTap: () {
+                      // Get.to(const LoginScreen());
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Login',
+                      style:
+                          CommonTextStyle.regular14w400.copyWith(color: ColorConstants.lightOrange),
+                    ),
+                  )
+                ],
+              ),
+              heightSpace(30),
+            ],
+          ).marginSymmetric(horizontal: 20),
+        ),
+      )),
+    );
+  }
+
+  centerImagePlaceHolder() {
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 200,
+            height: 200,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color.fromRGBO(255, 186, 120, 1),
+                  Color.fromRGBO(243, 63, 2, 1),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color.fromRGBO(243, 63, 2, 0.5),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                  offset: Offset(0, 5),
+                ),
               ],
             ),
-            heightSpace(30),
-          ],
-        ).marginSymmetric(horizontal: 20),
-      )),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: Image.asset(
+              "assets/images/forgot_screen_placeholder.png",
+              fit: BoxFit.cover,
+              height: 100,
+              width: 103,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

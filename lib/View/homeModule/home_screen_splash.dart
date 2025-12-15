@@ -3,9 +3,13 @@ import 'package:get/get.dart';
 import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import 'package:lava_dating_app/Common/widgets/custom_background.dart';
+import 'package:lava_dating_app/Common/widgets/custom_button.dart';
 import 'package:lava_dating_app/Common/widgets/glass_background_widget.dart';
 import 'package:lava_dating_app/Controller/home_screen_controller.dart';
+import 'package:lava_dating_app/View/chatModule/notification_list_screen.dart';
+import 'package:lava_dating_app/View/homeModule/swipe_screen.dart';
 import '../../Common/constant/color_constants.dart';
+import '../../Common/widgets/animated_white_button.dart';
 import '../../Common/widgets/glass_circular_button.dart';
 import '../../Common/widgets/glass_profile_card.dart';
 import '../../Common/widgets/glass_match_card.dart';
@@ -52,10 +56,19 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
                           ),
                         ],
                       ),
-                      Image.asset(
-                        "assets/icons/notification_icon.png",
-                        height: 30,
-                        width: 30,
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(() => const NotificationListScreen());
+                          },
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset(
+                            "assets/icons/notification_icon.png",
+                            height: 30,
+                            width: 30,
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -101,6 +114,7 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
                   heightSpace(20)
                 ],
               ),
+              heightSpace(100),
             ],
           ),
         ),
@@ -126,7 +140,8 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
             age: match['age'] ?? '',
             imageUrl: match['imageUrl'],
             onTap: () {
-              _showSafetyDialog(context);
+              // _showSafetyDialog(context);
+              _showSafetyDialog(Navigator.of(context, rootNavigator: true).context);
             },
           ),
         );
@@ -135,78 +150,74 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
   }
 
   void _showSafetyDialog(BuildContext context) {
-    showDialog(
-      context: context,
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+    showGeneralDialog(
+      context: rootContext,
       barrierColor: const Color.fromRGBO(0, 0, 0, 0.5),
-      builder: (BuildContext context) {
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation, secondaryAnimation) => const SizedBox.shrink(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final media = MediaQuery.of(context).size;
+        final dialogWidth = media.width * 0.88 > 480 ? 480.0 : media.width * 0.88;
+        final dialogMaxHeight = media.height * 0.72;
         return Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: GlassBackgroundWidget(
-              borderRadius: 20,
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.yellow,
-                          borderRadius: BorderRadius.circular(8),
+          child: FadeTransition(
+            opacity: animation,
+            child: Material(
+              type: MaterialType.transparency,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: media.width,
+                  maxHeight: dialogMaxHeight,
+                ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: GlassBackgroundWidget(
+                    borderRadius: 20,
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              "assets/icons/HomeSplash/warning_icon.png",
+                              height: 28,
+                              width: 28,
+                              fit: BoxFit.fill,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text("Stay Safe", style: CommonTextStyle.regular16w500),
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.warning,
-                          color: Colors.black,
-                          size: 28,
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Be cautious about sharing personal information with strangers. Never share financial or sensitive details.",
+                          style: CommonTextStyle.regular12w400,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        "Stay Safe",
-                        style: CommonTextStyle.regular18w600,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Be cautious about sharing personal information with strangers. Never share financial or sensitive details.",
-                    style: CommonTextStyle.regular14w500,
-                  ),
-                  const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        heightSpace(28),
+                        Center(
+                          child: AnimatedWhiteButton(
+                            label: 'Got it',
+                            width: 100,
+                            height: 35,
+                            onTap: () {
+                              print('Got it tapped');
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        "Got it",
-                        style: TextStyle(
-                          color: ColorConstants.lightOrange,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        );
+        ).marginSymmetric(horizontal: 20);
       },
     );
   }
@@ -214,7 +225,7 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
   Widget _buildMatchesCard() {
     return Obx(() => GlassBackgroundWidget(
           borderRadius: 15,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -222,7 +233,7 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
                 "Matches",
                 style: CommonTextStyle.regular18w500,
               ),
-              heightSpace(8),
+              heightSpace(4),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -372,7 +383,9 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
           child: GlassProfileCard(
             firstLineText: suggestion['firstLine'] ?? '',
             secondLineText: suggestion['secondLine'] ?? '',
-            onTap: () {},
+            onTap: () {
+              Get.to(() => const SwipeScreen());
+            },
           ),
         );
       },

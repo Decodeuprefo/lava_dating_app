@@ -19,7 +19,7 @@ class ProfileModuleController extends GetxController {
   final selectedRelationshipType = <String>[].obs;
   final preferredGender = "".obs; // "Male", "Female", "Other"
   final maritalStatus =
-      "".obs; // "Single", "Married", "Separated", "Divorced", "Widowed", "Never married"
+      "".obs; 
   final hasChildren = "".obs; // "Yes", "No"
   final preferredDistance = 22.0.obs; // Distance in km (5-500)
   final minAge = 24.obs;

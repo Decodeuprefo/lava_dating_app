@@ -40,12 +40,17 @@ class GlassBackgroundWidget extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  // Top-left: lighter purple with minimal opacity for glass shine
-                  const Color(0xFF2A1F3A).withOpacity(0.15),
-                  // Middle: base purple tint
-                  const Color(0xFF2A1F3A).withOpacity(0.20),
-                  // Bottom-right: slightly darker purple
-                  const Color(0xFF2A1F3A).withOpacity(0.25),
+                  // // Top-left: lighter purple with minimal opacity for glass shine
+                  // const Color(0xFF2A1F3A).withOpacity(0.15),
+                  // // Middle: base purple tint
+                  // const Color(0xFF2A1F3A).withOpacity(0.20),
+                  // // Bottom-right: slightly darker purple
+                  // const Color(0xFF2A1F3A).withOpacity(0.25),
+
+
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),

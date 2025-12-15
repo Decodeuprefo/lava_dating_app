@@ -1,5 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'home_screen_splash.dart';
+import 'package:lava_dating_app/View/homeModule/home_screen_splash.dart';
+import 'package:lava_dating_app/View/homeModule/swipe_screen.dart';
+import 'package:lava_dating_app/View/homeModule/match_liked_screen.dart';
+import 'package:lava_dating_app/View/myProfileModule/my_profile_screen.dart';
+
+import '../chatModule/chat_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -11,104 +17,133 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
+  final List<String> _icons = [
+    "assets/icons/dash_home.png",
+    "assets/icons/dash_discovery.png",
+    "assets/icons/dash_heart.png",
+    "assets/icons/dash_message.png",
+    "assets/icons/dash_user.png",
+  ];
+
   final List<Widget> _screens = [
     const HomeScreenSplash(),
-    const Center(child: Text('Tab 2')),
-    const Center(child: Text('Tab 3')),
-    const Center(child: Text('Tab 4')),
+    const SwipeScreen(),
+    const MatchLikedScreen(),
+    const ChatListScreen(),
+    const MyProfileScreen(),
   ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       body: Stack(
-        fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/images/dashboard_back.png',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(color: Colors.black);
-            },
-          ),
           _screens[_selectedIndex],
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildGlassNavigationBar(),
+          ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return SafeArea(
+  Widget _buildNavItem(int index) {
+    bool isSelected = _selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
       child: Container(
-        height: 70,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              index: 0,
-              icon: Icons.home, // Placeholder - user will replace with home icon
-              isSelected: _selectedIndex == 0,
-            ),
-            _buildNavItem(
-              index: 1,
-              icon: Icons.search, // Placeholder - user will replace
-              isSelected: _selectedIndex == 1,
-            ),
-            _buildNavItem(
-              index: 2,
-              icon: Icons.favorite, // Placeholder - user will replace
-              isSelected: _selectedIndex == 2,
-            ),
-            _buildNavItem(
-              index: 3,
-              icon: Icons.person, // Placeholder - user will replace
-              isSelected: _selectedIndex == 3,
-            ),
-          ],
+        width: 60,
+        height: 60,
+        decoration: isSelected
+            ? BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.2),
+                    Colors.white.withOpacity(0.05),
+                  ],
+                ),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1.0,
+                ),
+              )
+            : null, // No decoration if not selected
+        child: Center(
+          child: Image.asset(
+            _icons[index],
+            width: 32, // Adjust icon size
+            height: 32,
+            color: isSelected ? const Color(0xFFFF4500) : Colors.white,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          // Round background when selected - white with orange tint
-          color: isSelected
-              ? const Color(0xffF33F02).withOpacity(0.1) // Light orange background
-              : Colors.transparent,
-          border: isSelected
-              ? Border.all(
-                  color: const Color(0xffF33F02).withOpacity(0.3),
-                  width: 1.5,
-                )
-              : null,
-        ),
-        child: Center(
-          child: Icon(
-            icon,
-            color: isSelected
-                ? const Color(0xffF33F02) // Orange color when selected
-                : Colors.grey.withOpacity(0.6), // Grey when not selected
-            size: 24,
+  Widget _buildGlassNavigationBar() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+      ),
+      child: Stack(
+        children: [
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              height: 100,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        ),
+          Container(
+            height: 100,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.white.withOpacity(0.20),
+                  Colors.white.withOpacity(0.17),
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(_icons.length, (index) {
+                  return _buildNavItem(index);
+                }),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

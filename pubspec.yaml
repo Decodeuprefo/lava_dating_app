@@ -38,10 +38,12 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/profile_border.png
     - assets/icons/
     - assets/icons/InterestsHobbies/
     - assets/icons/RelationType/
     - assets/icons/HomeSplash/
+    - assets/icons/settings/
 
   fonts:
     - family: Poppins
