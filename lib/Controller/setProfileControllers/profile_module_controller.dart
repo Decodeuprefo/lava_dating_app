@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
-import '../Model/profile_module_model.dart';
+import '../../Model/profile_module_model.dart';
 
 class ProfileModuleController extends GetxController {
   TextEditingController aboutMeController = TextEditingController();
@@ -15,13 +15,12 @@ class ProfileModuleController extends GetxController {
   final selectedDrinking = <String>[].obs;
   final selectedSmoking = <String>[].obs;
   final selectedEducation = "".obs;
-  final selectedLanguage = "".obs;
+  final selectedLanguages = <String>[].obs;
   final selectedRelationshipType = <String>[].obs;
   final preferredGender = "".obs; // "Male", "Female", "Other"
-  final maritalStatus =
-      "".obs; 
+  final maritalStatus = "".obs;
   final hasChildren = "".obs; // "Yes", "No"
-  final preferredDistance = 22.0.obs; // Distance in km (5-500)
+  final preferredDistance = 100.0.obs; // Distance in km (5-500)
   final minAge = 24.obs;
   final maxAge = 29.obs;
   final minHeight = 5.obs;
@@ -30,6 +29,7 @@ class ProfileModuleController extends GetxController {
   final RxBool feetORCm = true.obs; // true = ft/in, false = cm
 
   final List<String> interests = [
+    // Image 1 items
     'Crafting',
     'Photography',
     'Speaking',
@@ -45,24 +45,95 @@ class ProfileModuleController extends GetxController {
     'Coffee',
     'Acting',
     'Cooking',
+    // Image 2 items
+    'Dancing',
+    'Comedy',
+    'Yoga',
+    'Travel',
+    'Skiing',
+    'Blogging',
+    'Singing',
+    'Painting',
+    'Snowboarding',
+    'Ice Skating',
+    'Cheerleading',
+    'Sports',
+    'Faith',
+    'Foodie',
+    'Family',
+    // Image 3 items
+    'Education',
+    'Community',
+    'Music',
+    'Beach',
+    'Hiking',
+    'Volunteering',
+    'Bible',
+    'Self-care',
+    'Reading',
+    'Entrepreneurship',
+    'Culture',
+    'Rugby',
+    'American Football',
+    // Image 4 items
+    'Cars',
+    'Motorcycles',
+    'Makeup',
+    'Concerts',
   ];
 
   final List<String> iconPaths = [
-    'assets/icons/InterestsHobbies/cutter.png',
-    'assets/icons/InterestsHobbies/camera.png',
-    'assets/icons/InterestsHobbies/sound.png',
-    'assets/icons/InterestsHobbies/wave.png',
-    'assets/icons/InterestsHobbies/edit.png',
-    'assets/icons/InterestsHobbies/pencil.png',
-    'assets/icons/InterestsHobbies/safari.png',
-    'assets/icons/InterestsHobbies/nature.png',
-    'assets/icons/InterestsHobbies/movie.png',
-    'assets/icons/InterestsHobbies/research.png',
-    'assets/icons/InterestsHobbies/user_group.png',
-    'assets/icons/InterestsHobbies/goal.png',
-    'assets/icons/InterestsHobbies/coffee_tea.png',
-    'assets/icons/InterestsHobbies/cartoon.png',
-    'assets/icons/InterestsHobbies/cooking.png',
+    // Image 1 icons
+    'assets/icons/InterestsHobbies/cutter.png', // Crafting
+    'assets/icons/InterestsHobbies/camera.png', // Photography
+    'assets/icons/InterestsHobbies/sound.png', // Speaking
+    'assets/icons/InterestsHobbies/wave.png', // Surfing
+    'assets/icons/InterestsHobbies/edit.png', // Designing
+    'assets/icons/InterestsHobbies/pencil.png', // Writing
+    'assets/icons/InterestsHobbies/safari.png', // Road Trips
+    'assets/icons/InterestsHobbies/nature.png', // Gardening
+    'assets/icons/InterestsHobbies/movie.png', // Movies
+    'assets/icons/InterestsHobbies/research.png', // Feminism
+    'assets/icons/InterestsHobbies/user_group.png', // Athlete
+    'assets/icons/InterestsHobbies/goal.png', // Golf
+    'assets/icons/InterestsHobbies/coffee_tea.png', // Coffee
+    'assets/icons/InterestsHobbies/cartoon.png', // Acting
+    'assets/icons/InterestsHobbies/cooking.png', // Cooking
+    // Image 2 icons
+    'assets/icons/InterestsHobbies/lighting.png', // Dancing (icon not found, using placeholder)
+    'assets/icons/InterestsHobbies/comedy.png', // Comedy
+    'assets/icons/InterestsHobbies/yoga.png', // Yoga
+    'assets/icons/InterestsHobbies/tour.png', // Travel
+    'assets/icons/InterestsHobbies/skating.png', // Skiing
+    'assets/icons/InterestsHobbies/blogging.png', // Blogging
+    'assets/icons/InterestsHobbies/singing.png', // Singing
+    'assets/icons/InterestsHobbies/painting.png', // Painting
+    'assets/icons/InterestsHobbies/snowboarding.png', // Snowboarding
+    'assets/icons/InterestsHobbies/ice_skating.png', // Ice Skating
+    'assets/icons/InterestsHobbies/cheerleading.png', // Cheerleading
+    'assets/icons/InterestsHobbies/sports.png', // Sports
+    'assets/icons/InterestsHobbies/faith.png', // Faith
+    'assets/icons/InterestsHobbies/foodie.png', // Foodie
+    'assets/icons/InterestsHobbies/family.png', // Family
+    // Image 3 icons
+    'assets/icons/InterestsHobbies/education.png', // Education
+    'assets/icons/InterestsHobbies/community.png', // Community
+    'assets/icons/InterestsHobbies/music.png', // Music
+    'assets/icons/InterestsHobbies/beach.png', // Beach
+    'assets/icons/InterestsHobbies/hiking.png', // Hiking
+    'assets/icons/InterestsHobbies/volunteering.png', // Volunteering
+    'assets/icons/InterestsHobbies/bible.png', // Bible
+    'assets/icons/InterestsHobbies/self_care.png', // Self-care
+    'assets/icons/InterestsHobbies/reading.png', // Reading
+    'assets/icons/InterestsHobbies/entrepreneurship.png', // Entrepreneurship
+    'assets/icons/InterestsHobbies/culture.png', // Culture
+    'assets/icons/InterestsHobbies/rugby.png', // Rugby
+    'assets/icons/InterestsHobbies/american_football.png', // American Football
+    // Image 4 icons
+    'assets/icons/InterestsHobbies/car.png', // Cars
+    'assets/icons/InterestsHobbies/motorcycles.png', // Motorcycles
+    'assets/icons/InterestsHobbies/makeup.png', // Makeup
+    'assets/icons/InterestsHobbies/concerts.png', // Concerts
   ];
 
   void toggleInterest(String interest) {
@@ -101,6 +172,7 @@ class ProfileModuleController extends GetxController {
     if (selectedReligion.contains(religion)) {
       selectedReligion.remove(religion);
     } else {
+      selectedReligion.clear();
       selectedReligion.add(religion);
     }
   }
@@ -123,6 +195,11 @@ class ProfileModuleController extends GetxController {
     'Guam',
     'Northern Mariana Islands',
     'Nauru',
+    'Papua New Guinea',
+    'Solomon Islands',
+    'Vanuatu',
+    'New Caledonia',
+    'Rapa Nui',
   ];
 
   void toggleEthnicity(String ethnicity) {
@@ -157,6 +234,7 @@ class ProfileModuleController extends GetxController {
     if (selectedDrinking.contains(option)) {
       selectedDrinking.remove(option);
     } else {
+      selectedDrinking.clear();
       selectedDrinking.add(option);
     }
   }
@@ -165,41 +243,49 @@ class ProfileModuleController extends GetxController {
     if (selectedSmoking.contains(option)) {
       selectedSmoking.remove(option);
     } else {
+      selectedSmoking.clear();
       selectedSmoking.add(option);
     }
   }
 
   final List<String> educationOptions = [
-    'BA',
-    'BCom',
-    'BSc',
-    'BBA',
-    'BCA',
-    'BTech / BE',
+    'High School',
+    'Some College',
+    'Associate Degree',
+    'Bachelor\'s Degree',
+    'Master\'s Degree',
+    'Doctorate (PhD, MD, etc.)',
   ];
 
   final List<String> languageOptions = [
-    'English',
-    'Spanish',
-    'French',
-    'German',
-    'Chinese (Mandarin)',
-    'Arabic',
-    'Hindi',
-    'Portuguese',
-    'Russian',
-    'Japanese',
-    'Korean',
-    'Italian',
-    'Turkish',
-    'Dutch',
-    'Indonesian',
-    'Bengali',
-    'Urdu',
-    'Vietnamese',
-    'Thai',
-    'Persian (Farsi)',
+    'Tonga',
+    'Samoan',
+    'Hawaiian',
+    'Maori',
+    'Fijian',
+    'Tuvaluan',
+    'Tahitian',
+    'Niuean',
+    'Tokelauan',
+    'Rarotongan',
+    'Marquesan',
+    'Uvean',
+    'Futunan',
+    'Mangarevan',
+    'Papuan',
+    'Palauan',
+    'Nauruan',
+    'Rapa Nui',
+    'Chamorro',
   ];
+
+  void toggleLanguage(String language) {
+    if (selectedLanguages.contains(language)) {
+      selectedLanguages.remove(language);
+    } else {
+      selectedLanguages.add(language);
+    }
+  }
 
   final List<String> relationshipTypes = [
     'Friends',
@@ -227,6 +313,7 @@ class ProfileModuleController extends GetxController {
     if (selectedRelationshipType.contains(type)) {
       selectedRelationshipType.remove(type);
     } else {
+      selectedRelationshipType.clear();
       selectedRelationshipType.add(type);
     }
   }

@@ -14,13 +14,18 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   get: ^4.6.6
+  get_storage: ^2.1.1
   flutter_svg: ^2.2.2
   image_picker: ^1.2.0
   permission_handler: ^12.0.1
   #  flutter_plugin_android_lifecycle: ^2.0.4
   glassmorphism: ^3.0.0
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
+  google_sign_in: ^6.2.1
   #  video_player: ^2.10.0
   chewie: ^1.7.1
+  shimmer: ^3.0.0
   #  video_thumbnail: ^0.5.3
   #  ffmpeg_kit_flutter_new: ^4.1.0
   #  path_provider: ^2.1.1
@@ -49,6 +54,16 @@ flutter:
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
 
+    - family: Poppins-SemiBold
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+
+    - family: Poppins-Medium
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+
+    - family: Poppins-Bold
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
 

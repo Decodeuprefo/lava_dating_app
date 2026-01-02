@@ -23,7 +23,7 @@ class WelcomeTwoScreen extends StatelessWidget {
                 _buildTitle(),
                 heightSpace(33),
                 _buildCenterImage(),
-                heightSpace(36),
+                heightSpace(35),
                 Expanded(
                   child: _buildDescriptionText(),
                 ),
@@ -88,10 +88,11 @@ class WelcomeTwoScreen extends StatelessWidget {
     return AppButton(
       text: 'Next',
       onPressed: () {
-        Get.to(
-          () => const WelcomeThreeScreen(),
+        Get.off(
+              () => const WelcomeThreeScreen(),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
         );
       },
       backgroundColor: ColorConstants.lightOrange,
@@ -101,7 +102,7 @@ class WelcomeTwoScreen extends StatelessWidget {
       borderRadius: 10,
       width: double.infinity,
       elevation: 0,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 10),
     );
   }
 

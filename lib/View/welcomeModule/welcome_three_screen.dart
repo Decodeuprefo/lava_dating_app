@@ -17,24 +17,37 @@ class WelcomeThreeScreen extends StatelessWidget {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                heightSpace(100),
-                _buildTitle(),
-                heightSpace(33),
-                _buildCenterImage(),
-                heightSpace(33),
-                Expanded(child: _buildDescriptionText()),
-                const Spacer(),
-                Column(
-                  children: [
-                    _buildNextButton(),
-                    heightSpace(20),
-                    _buildStepper(),
-                  ],
-                ),
-                heightSpace(20),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          heightSpace(100),
+                          _buildTitle(),
+                          heightSpace(33),
+                          _buildCenterImage(),
+                          heightSpace(35),
+                          Flexible(child: _buildDescriptionText()),
+                          const Spacer(),
+                          Column(
+                            children: [
+                              _buildNextButton(),
+                              heightSpace(20),
+                              _buildStepper(),
+                            ],
+                          ),
+                          heightSpace(20),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -91,10 +104,11 @@ class WelcomeThreeScreen extends StatelessWidget {
     return AppButton(
       text: 'Next',
       onPressed: () {
-        Get.to(
-          () => const WelcomeFourScreen(),
+        Get.off(
+              () => const WelcomeFourScreen(),
           transition: Transition.rightToLeftWithFade,
           duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
         );
       },
       backgroundColor: ColorConstants.lightOrange,
@@ -104,7 +118,7 @@ class WelcomeThreeScreen extends StatelessWidget {
       borderRadius: 10,
       width: double.infinity,
       elevation: 0,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 10),
     );
   }
 

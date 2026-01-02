@@ -71,6 +71,7 @@ class Assets {
   static const String imagesMapImage = 'assets/images/map_image.png';
   static const String imagesPayDone = 'assets/images/pay_done.png';
   static const String imagesProfileBorder = 'assets/images/profile_border.png';
+  static const String imagesUserPlaceholder = 'assets/images/user_placeholder.png';
   static const String imagesWelcome1 = 'assets/images/welcome1.png';
   static const String imagesWelcome2 = 'assets/images/welcome2.png';
   static const String imagesWelcome3 = 'assets/images/welcome3.png';

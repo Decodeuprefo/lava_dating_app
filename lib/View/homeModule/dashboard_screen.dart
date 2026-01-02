@@ -4,18 +4,26 @@ import 'package:lava_dating_app/View/homeModule/home_screen_splash.dart';
 import 'package:lava_dating_app/View/homeModule/swipe_screen.dart';
 import 'package:lava_dating_app/View/homeModule/match_liked_screen.dart';
 import 'package:lava_dating_app/View/myProfileModule/my_profile_screen.dart';
-
+import '../../Common/widgets/back_button_handler_widget.dart';
 import '../chatModule/chat_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int? initialIndex;
+  
+  const DashboardScreen({super.key, this.initialIndex});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+  
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex ?? 0;
+  }
 
   final List<String> _icons = [
     "assets/icons/dash_home.png",
@@ -41,18 +49,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          _screens[_selectedIndex],
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildGlassNavigationBar(),
-          ),
-        ],
+    return BackButtonHandlerWidget(
+      showWarning: true,
+      warningTitle: "Exit App?",
+      warningMessage: "Are you sure you want to exit?",
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            _screens[_selectedIndex],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildGlassNavigationBar(),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -36,14 +36,14 @@ class CommonTextStyle {
       fontSize: 14,
       fontWeight: FontWeight.w500,
       height: 20 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Medium',
       color: Colors.white);
 
   static const TextStyle regular14w600 = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w600,
       height: 20 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-SemiBold',
       color: Colors.white);
 
   static const TextStyle regular15w400 = TextStyle(
@@ -80,14 +80,14 @@ class CommonTextStyle {
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 24 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Medium',
       color: Colors.white);
 
   static const TextStyle regular10w500 = TextStyle(
       fontSize: 11,
       fontWeight: FontWeight.w500,
       height: 24 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Medium',
       color: Colors.white);
 
   static const TextStyle regular18w400 = TextStyle(
@@ -101,20 +101,20 @@ class CommonTextStyle {
       fontSize: 18,
       fontWeight: FontWeight.w500,
       height: 24 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Medium',
       color: Colors.white);
 
   static const TextStyle regular22w500 = TextStyle(
       fontSize: 22,
       fontWeight: FontWeight.w500,
       height: 24 / 15,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Medium',
       color: Colors.white);
 
   static const TextStyle semiBold30w600 = TextStyle(
       fontSize: 30,
       fontWeight: FontWeight.w600,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-SemiBold',
       color: ColorConstants.lightOrange);
 
   static const TextStyle regular20w600 = TextStyle(
@@ -148,14 +148,17 @@ class CommonTextStyle {
       fontSize: 24, fontWeight: FontWeight.w700, fontFamily: 'Poppins', color: Colors.white);
 
   static const TextStyle bold15w700 = TextStyle(
-      fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Poppins', color: Colors.white);
+      fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Poppins-Bold', color: Colors.white);
+
+  static const TextStyle bold16w700 = TextStyle(
+      fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Poppins-Bold', color: Colors.white);
 
   static const TextStyle bold14w700 = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w700,
-      fontFamily: 'Poppins',
+      fontFamily: 'Poppins-Bold',
       color: ColorConstants.lightOrange);
 
   static const TextStyle bold12w700 = TextStyle(
-      fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'Poppins', color: Colors.white);
+      fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'Poppins-Bold', color: Colors.white);
 }

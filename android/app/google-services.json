@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277621053888",
+    "project_id": "lava-43da2",
+    "storage_bucket": "lava-43da2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277621053888:android:2ff087f4e4584bfd8d5025",
+        "android_client_info": {
+          "package_name": "com.lava.dating"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMiF1dOMrhMgqheg6Vflo3h1HxBZyH1_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

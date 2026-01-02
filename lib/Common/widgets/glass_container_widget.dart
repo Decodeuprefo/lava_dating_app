@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../constant/color_constants.dart';
 import '../constant/common_text_style.dart';
+import 'glassmorphic_background_widget.dart';
 
 class GlassContainerWidget extends StatelessWidget {
   final String text;
@@ -35,63 +35,79 @@ class GlassContainerWidget extends StatelessWidget {
     final EdgeInsetsGeometry containerPadding =
         padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 14);
 
-    Widget content = ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Stack(
-          children: [
-            Container(
-              padding: containerPadding,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(radius),
-                color: isSelected ? const Color(0x852A1F3A) : const Color(0x752A1F3A),
-              ),
-              child: _buildContent(),
-            ),
-            Positioned.fill(
-              child: IgnorePointer(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(radius),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(radius),
-                      border: Border.all(
-                        color: isSelected ? ColorConstants.lightOrange : const Color(0x66A898B8),
-                        width: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Subtle top-left shine for depth
-            Positioned.fill(
-              child: IgnorePointer(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(radius),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(radius),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withOpacity(0.08), // Subtle shine on top-left
-                          Colors.white.withOpacity(0.04), // Fading
-                          Colors.transparent, // Transparent in middle
-                          Colors.transparent, // Transparent on bottom-right
-                        ],
-                        stops: const [0.0, 0.25, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+    final LinearGradient borderGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isSelected
+          ? [
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+              ColorConstants.lightOrange,
+            ]
+          : [
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+              const Color(0x66A898B8),
+            ],
+      stops: const [0.0, 0.5, 1.0, 0.55, 0.70, 0.85, 1.00],
+    );
+
+    Widget content = Stack(
+      children: [
+        GlassmorphicBackgroundWidget(
+          borderRadius: radius,
+          padding: containerPadding,
+          blur: 8.0,
+          border: isSelected ? 2.0 : 0.8,
+          borderGradient: borderGradient,
+          child: _buildContent(),
+          linearGradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              // Color(0x66BBA8A8),
+              // Color(0x55AFA0A0),
+              const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+              const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+              const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+            ],
+            // stops: [0.0, 1.0],
+            stops: const [0.0, 0.5, 1.0],
+          ),
         ),
-      ),
+        // Subtle top-left shine for depth
+        /* Positioned.fill(
+          child: IgnorePointer(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(radius),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.08), // Subtle shine on top-left
+                      Colors.white.withOpacity(0.04), // Fading
+                      Colors.transparent, // Transparent in middle
+                      Colors.transparent, // Transparent on bottom-right
+                    ],
+                    stops: const [0.0, 0.25, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),*/
+      ],
     );
 
     if (onTap != null) {

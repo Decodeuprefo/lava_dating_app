@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import 'package:lava_dating_app/Common/constant/color_constants.dart';
+import 'package:lava_dating_app/Common/services/storage_service.dart';
 import 'package:lava_dating_app/Common/widgets/custom_button.dart';
 import 'package:lava_dating_app/Common/widgets/custom_background.dart';
+import 'package:lava_dating_app/View/authModule/login_screen.dart';
 import 'package:lava_dating_app/View/homeModule/dashboard_screen.dart';
 
 import '../setProfileModule/select_gender_screen.dart';
@@ -25,7 +27,7 @@ class WelcomeFourScreen extends StatelessWidget {
                 _buildTitle(),
                 heightSpace(33),
                 _buildCenterImage(),
-                heightSpace(33),
+                heightSpace(35),
                 Expanded(
                   child: _buildDescriptionText(),
                 ),
@@ -104,8 +106,14 @@ class WelcomeFourScreen extends StatelessWidget {
   Widget _buildGetStartedButton() {
     return AppButton(
       text: 'Get Started',
-      onPressed: () {
-        Get.off(() => const SelectGenderScreen());
+      onPressed: () async {
+        await StorageService.setWelcomeCompleted();
+        Get.off(
+          () => const LoginScreen(),
+          transition: Transition.cupertino,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOutCubic,
+        );
       },
       backgroundColor: ColorConstants.lightOrange,
       textStyle: CommonTextStyle.regular16w500.copyWith(
@@ -114,7 +122,7 @@ class WelcomeFourScreen extends StatelessWidget {
       borderRadius: 10,
       width: double.infinity,
       elevation: 0,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 10),
     );
   }
 

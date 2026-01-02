@@ -1,9 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import '../constant/color_constants.dart';
 import '../constant/common_text_style.dart';
+import '../widgets/glassmorphic_background_widget.dart';
 
 class AgeRangePickerWidget extends StatefulWidget {
   final int minAge;
@@ -73,143 +73,132 @@ class _AgeRangePickerWidgetState extends State<AgeRangePickerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0x752A1F3A),
-            border: Border.all(
-              color: const Color(0x66A898B8),
-              width: 1.0,
+    return GlassmorphicBackgroundWidget(
+      borderRadius: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 40).copyWith(top: 20),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Min",
+                  style: CommonTextStyle.regular16w500,
+                ),
+                Text(
+                  "Max",
+                  style: CommonTextStyle.regular16w500,
+                ),
+              ],
             ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 40).copyWith(top: 20),
-          child: Column(
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Min",
-                    style: CommonTextStyle.regular16w500,
-                  ),
-                  Text(
-                    "Max",
-                    style: CommonTextStyle.regular16w500,
-                  ),
-                ],
-              ),
-              heightSpace(20),
-              Image.asset(
-                "assets/images/border_line.png",
-                fit: BoxFit.fill,
-              ),
-              heightSpace(15),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          height: 162,
-                          width: 30,
-                          child: Stack(
-                            children: [
-                              ListWheelScrollView.useDelegate(
-                                itemExtent: 55,
-                                physics: const FixedExtentScrollPhysics(),
-                                controller: _minController,
-                                onSelectedItemChanged: (index) {
-                                  final newMinAge = ageList[index];
-                                  if (newMinAge <= widget.maxAge) {
-                                    widget.onMinAgeChanged(newMinAge);
-                                  }
+            heightSpace(20),
+            Image.asset(
+              "assets/images/border_line.png",
+              fit: BoxFit.fill,
+            ),
+            heightSpace(15),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 162,
+                        width: 30,
+                        child: Stack(
+                          children: [
+                            ListWheelScrollView.useDelegate(
+                              itemExtent: 55,
+                              physics: const FixedExtentScrollPhysics(),
+                              controller: _minController,
+                              onSelectedItemChanged: (index) {
+                                final newMinAge = ageList[index];
+                                if (newMinAge <= widget.maxAge) {
+                                  widget.onMinAgeChanged(newMinAge);
+                                }
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                builder: (context, index) {
+                                  if (index >= ageList.length) return const SizedBox();
+                                  final age = ageList[index];
+                                  final isSelected = age == widget.minAge;
+                                  final isValid = age <= widget.maxAge;
+                                  return Text(
+                                    age.toString(),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? ColorConstants.lightOrange
+                                          : (Colors.white.withOpacity(0.6)),
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  );
                                 },
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  builder: (context, index) {
-                                    if (index >= ageList.length) return const SizedBox();
-                                    final age = ageList[index];
-                                    final isSelected = age == widget.minAge;
-                                    final isValid = age <= widget.maxAge;
-                                    return Text(
-                                      age.toString(),
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? ColorConstants.lightOrange
-                                            : (Colors.white.withOpacity(0.6)),
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    );
-                                  },
-                                  childCount: ageList.length,
-                                ),
+                                childCount: ageList.length,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: 162,
-                          width: 30,
-                          child: Stack(
-                            children: [
-                              ListWheelScrollView.useDelegate(
-                                itemExtent: 55,
-                                physics: const FixedExtentScrollPhysics(),
-                                controller: _maxController,
-                                onSelectedItemChanged: (index) {
-                                  final newMaxAge = ageList[index];
-                                  if (newMaxAge >= widget.minAge) {
-                                    widget.onMaxAgeChanged(newMaxAge);
-                                  }
-                                },
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  builder: (context, index) {
-                                    if (index >= ageList.length) return const SizedBox();
-                                    final age = ageList[index];
-                                    final isSelected = age == widget.maxAge;
-                                    final isValid = age >= widget.minAge;
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        height: 162,
+                        width: 30,
+                        child: Stack(
+                          children: [
+                            ListWheelScrollView.useDelegate(
+                              itemExtent: 55,
+                              physics: const FixedExtentScrollPhysics(),
+                              controller: _maxController,
+                              onSelectedItemChanged: (index) {
+                                final newMaxAge = ageList[index];
+                                if (newMaxAge >= widget.minAge) {
+                                  widget.onMaxAgeChanged(newMaxAge);
+                                }
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                builder: (context, index) {
+                                  if (index >= ageList.length) return const SizedBox();
+                                  final age = ageList[index];
+                                  final isSelected = age == widget.maxAge;
+                                  final isValid = age >= widget.minAge;
 
-                                    return Text(
-                                      age.toString(),
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? ColorConstants.lightOrange
-                                            : (Colors.white.withOpacity(0.6)),
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    );
-                                  },
-                                  childCount: ageList.length,
-                                ),
+                                  return Text(
+                                    age.toString(),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? ColorConstants.lightOrange
+                                          : (Colors.white.withOpacity(0.6)),
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  );
+                                },
+                                childCount: ageList.length,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

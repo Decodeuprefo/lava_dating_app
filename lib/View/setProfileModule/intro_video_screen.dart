@@ -12,7 +12,8 @@ import '../../Common/constant/custom_tools.dart';
 import '../../Common/constant/color_constants.dart';
 import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
-import 'about_me_screen.dart';
+import '../../Common/widgets/shimmers/intro_video_screen_shimmer_widget.dart';
+import '../../Controller/setProfileControllers/intro_video_screen_controller.dart';
 import 'intro_video_view_screen.dart';
 
 class IntroVideoScreen extends StatefulWidget {
@@ -33,151 +34,174 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
   Uint8List? _thumbnailData;
 
   @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<IntroVideoScreenController>()) {
+      Get.put(IntroVideoScreenController());
+    }
+    _thumbnailData = null;
+  }
+
+  @override
   void dispose() {
     _chewieController?.dispose();
     _controller?.dispose();
+    try {
+      if (Get.isRegistered<IntroVideoScreenController>()) {
+        Get.delete<IntroVideoScreenController>();
+      }
+    } catch (e) {}
     super.dispose();
   }
 
   @override
-  void initState() {
-    _thumbnailData = null;
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    heightSpace(13),
-                    InkWell(
-                      onTap: Get.back,
-                      child: SvgPicture.asset(
-                        "assets/icons/back_arrow.svg",
-                        height: 30,
-                        width: 30,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    heightSpace(90),
-                    CommonTextWidget(
-                      text: _chewieController != null
-                          ? 'VIBE CHECK! 🤙🏼'
-                          : 'Hey Lava, you\u2019re glowing!',
-                      textType: TextType.head,
-                    ),
-                    CommonTextWidget(
-                      text: _chewieController != null
-                          ? 'Tell us more about you & what you’re looking for.'
-                          : 'Let\'s flow, drop a 30 second intro here',
-                      textType: TextType.des,
-                    ),
-                    heightSpace(70),
-                    Stack(
-                      clipBehavior: Clip.none,
+    return GetBuilder<IntroVideoScreenController>(
+      builder: (controller) {
+        if (controller.isLoading) {
+          return const Scaffold(
+            body: BackgroundContainer(
+              child: SafeArea(
+                child: IntroVideoScreenShimmerWidget(),
+              ),
+            ),
+          );
+        }
+        return Scaffold(
+          body: BackgroundContainer(
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        LayoutBuilder(
-                          builder: (BuildContext context, BoxConstraints constraints) {
-                            return GlassmorphicContainer(
-                              width: constraints.maxWidth,
-                              height: 200.0,
-                              borderRadius: 10.0,
-                              blur: 8.0,
-                              border: 0.8,
-                              alignment: Alignment.center,
-                              linearGradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0x66BBA8A8),
-                                  Color(0x55AFA0A0),
-                                ],
-                                stops: [0.0, 1.0],
-                              ),
-                              borderGradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
-                                ],
-                                stops: const [0.0, 0.5, 1.0, 0.55, 0.70, 0.85, 1.00],
-                              ),
-                              child: const SizedBox.shrink(),
-                            );
-                          },
-                        ),
-
-                        /// Center Content
-                        Positioned.fill(
-                          child: Center(
-                            child: !_isLoading
-                                ? (_chewieController != null && _controller != null
-                                    ? _buildVideoThumbnail()
-                                    : InkWell(
-                                        onTap: _pickFromGallery,
-                                        child: SvgPicture.asset(
-                                          "assets/icons/add_item.svg",
-                                          height: 50,
-                                          width: 50,
-                                        ),
-                                      ))
-                                : const CircularProgressIndicator(),
+                        heightSpace(13),
+                        InkWell(
+                          onTap: Get.back,
+                          child: SvgPicture.asset(
+                            "assets/icons/back_arrow.svg",
+                            height: 30,
+                            width: 30,
+                            fit: BoxFit.fill,
                           ),
                         ),
+                        heightSpace(90),
+                        CommonTextWidget(
+                          text: _chewieController != null
+                              ? 'VIBE CHECK! 🤙🏼'
+                              : 'Hey Lava, you\u2019re glowing!',
+                          textType: TextType.head,
+                        ),
+                        CommonTextWidget(
+                          text: _chewieController != null
+                              ? "Tell us more about you & what you're looking for."
+                              : 'Let\'s flow, drop a 30 second intro here',
+                          textType: TextType.des,
+                        ),
+                        heightSpace(70),
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            LayoutBuilder(
+                              builder: (BuildContext context, BoxConstraints constraints) {
+                                return GlassmorphicContainer(
+                                  width: constraints.maxWidth,
+                                  height: 200.0,
+                                  borderRadius: 10.0,
+                                  blur: 8.0,
+                                  border: 0.8,
+                                  alignment: Alignment.center,
+                                  linearGradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0x66BBA8A8),
+                                      Color(0x55AFA0A0),
+                                    ],
+                                    stops: [0.0, 1.0],
+                                  ),
+                                  borderGradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                      const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                                    ],
+                                    stops: const [0.0, 0.5, 1.0, 0.55, 0.70, 0.85, 1.00],
+                                  ),
+                                  child: const SizedBox.shrink(),
+                                );
+                              },
+                            ),
 
-                        /// Close Button
-                        if (_chewieController != null && _controller != null)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: GestureDetector(
-                              onTap: removeSelectedVideo,
-                              child: Image.asset(
-                                "assets/icons/close_icon.png",
-                                height: 20,
-                                width: 20,
+                            /// Center Content
+                            Positioned.fill(
+                              child: Center(
+                                child: !_isLoading
+                                    ? (_chewieController != null && _controller != null
+                                        ? _buildVideoThumbnail()
+                                        : InkWell(
+                                            onTap: _pickFromGallery,
+                                            child: SvgPicture.asset(
+                                              "assets/icons/add_item.svg",
+                                              height: 50,
+                                              width: 50,
+                                            ),
+                                          ))
+                                    : const CircularProgressIndicator(
+                                        color: ColorConstants.lightOrange,
+                                      ),
                               ),
                             ),
-                          ),
+
+                            /// Close Button
+                            if (_chewieController != null && _controller != null)
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: GestureDetector(
+                                  onTap: removeSelectedVideo,
+                                  child: Image.asset(
+                                    "assets/icons/close_icon.png",
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
                       ],
-                    )
-                  ],
-                ).marginSymmetric(horizontal: 20),
+                    ).marginSymmetric(horizontal: 20),
+                  ),
+                  AppButton(
+                    text: "Continue",
+                    textStyle: CommonTextStyle.regular16w500,
+                    onPressed: controller.isLoading
+                        ? null
+                        : () {
+                            if (_videoFile == null) {
+                              showSnackBar(context, 'Please select a video to continue.',
+                                  isErrorMessageDisplay: true);
+                              return;
+                            }
+                            controller.uploadIntroVideo(context, _videoFile!);
+                          },
+                  ).marginSymmetric(horizontal: 20, vertical: 20)
+                ],
               ),
-              AppButton(
-                text: "Continue",
-                textStyle: CommonTextStyle.regular16w500,
-                onPressed: () {
-                  setState(() {});
-                  if (_chewieController != null && _controller != null && _videoFile != null) {
-                    Get.to(() => const AboutMeScreen());
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please select first video')),
-                    );
-                  }
-                },
-              ).marginSymmetric(horizontal: 20, vertical: 20)
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -250,65 +274,6 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
     });
   }
 
-  /*Future<File?> generateThumbnail(String videoPath) async {
-    try {
-      final String? thumbPath = await VideoThumbnail.thumbnailFile(
-        video: videoPath,
-        imageFormat: ImageFormat.PNG,
-        maxHeight: 200,
-        quality: 80,
-      );
-
-      if (thumbPath != null) {
-        return File(thumbPath);
-      }
-    } catch (e) {
-      debugPrint("Thumbnail error: $e");
-    }
-    return null;
-  }*/
-
-  /*Future<void> generateThumbnail(String videoPath) async {
-    try {
-      final Directory tempDir = await getTemporaryDirectory();
-      final String outputPath = '${tempDir.path}/thumb_${DateTime.now().millisecondsSinceEpoch}.png';
-
-      final session = await FFmpegKit.execute(
-          '-i "$videoPath" -ss 00:00:01 -vframes 1 -vf scale=200:200 "$outputPath"'
-      );
-
-      final ReturnCode? returnCode = await session.getReturnCode();
-
-      if (ReturnCode.isSuccess(returnCode)) {
-        final File thumbFile = File(outputPath);
-        if (thumbFile.existsSync()) {
-          final bytes = await thumbFile.readAsBytes();
-          setState(() {
-            _thumbnailData = bytes;
-          });
-        }
-      } else {
-        print('FFmpeg error: ${returnCode?.getValue()}');
-      }
-    } catch (e) {
-      print('Error generating thumbnail: $e');
-    }
-  }*/
-
-  /*Future<void> generateThumbnail(String videoPath) async {
-    try {
-      // Extract first frame as thumbnail using Dart
-      final File videoFile = File(videoPath);
-
-      // For now, use a placeholder - you can show video duration or file info
-      setState(() {
-        _thumbnailData = null; // Will show placeholder
-      });
-    } catch (e) {
-      print('Error: $e');
-    }
-  }*/
-
   Future<void> _generateThumbnail() async {
     try {
       if (_controller == null || !_controller!.value.isInitialized) {
@@ -377,24 +342,8 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
   }
 
   void _showWarning() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'The minimum video length should be 30 seconds.',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.only(
-          top: 20,
-          left: 10,
-          right: 10,
-        ),
-        // position from top
-        dismissDirection: DismissDirection.startToEnd,
-        duration: Duration(seconds: 3),
-      ),
-    );
+    showSnackBar(context, 'The minimum video length should be 30 seconds.',
+        isErrorMessageDisplay: true);
   }
 
   Future<void> removeSelectedVideo() async {

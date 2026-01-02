@@ -11,6 +11,7 @@ import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
 import '../../Common/widgets/input_formatters.dart';
 import '../../Common/widgets/text_form_field_widget.dart';
+import '../../Controller/login_screen_controller.dart';
 import '../../Controller/signup_screen_controller.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -22,40 +23,31 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final SignupScreenController signupScreenController;
 
   @override
   void initState() {
     super.initState();
-    if (Get.isRegistered<SignupScreenController>()) {
-      try {
-        Get.delete<SignupScreenController>();
-      } catch (e) {}
-    }
-    Get.put(SignupScreenController(), permanent: false);
+    signupScreenController = Get.put(SignupScreenController());
   }
 
   @override
   void dispose() {
-    try {
-      if (Get.isRegistered<SignupScreenController>()) {
-        Get.delete<SignupScreenController>();
-      }
-    } catch (e) {}
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: BackgroundContainer(
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: GetBuilder<SignupScreenController>(
-                builder: (controller) {
-                  return RepaintBoundary(
-                    child: SingleChildScrollView(
+    return GetBuilder<SignupScreenController>(builder: (controller) {
+      return Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: BackgroundContainer(
+            child: SafeArea(
+              child: Form(
+                key: _formKey,
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
                       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
@@ -80,7 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           heightSpace(30),
                           TextFormFieldWidget(
-                            controller: controller.firstNameController,
+                            controller: signupScreenController.firstNameController,
                             prefixIcon: Image.asset(
                               "assets/icons/user_icon.png",
                               height: 24,
@@ -88,22 +80,21 @@ class _SignupScreenState extends State<SignupScreen> {
                               fit: BoxFit.fill,
                             ),
                             hint: StringConstants.firstName,
-                            validator: (value) => controller.validateFieldNotEmpty(
+                            validator: (value) => signupScreenController.validateFieldNotEmpty(
                               value,
                               StringConstants.emptyFirstName,
                             ),
+                            autofocus: true,
                             onFieldSubmitted: (p0) {
-                              FocusScope.of(context).requestFocus(controller.lastNameFocusNode);
+                              FocusScope.of(context)
+                                  .requestFocus(signupScreenController.lastNameFocusNode);
                             },
-                            focusNode: controller.firstNameFocusNode,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),
-                            ],
+                            focusNode: signupScreenController.firstNameFocusNode,
                             textInputAction: TextInputAction.next,
                           ),
                           heightSpace(20),
                           TextFormFieldWidget(
-                            controller: controller.lastNameController,
+                            controller: signupScreenController.lastNameController,
                             prefixIcon: Image.asset(
                               "assets/icons/user_icon.png",
                               height: 24,
@@ -111,23 +102,21 @@ class _SignupScreenState extends State<SignupScreen> {
                               fit: BoxFit.fill,
                             ),
                             hint: StringConstants.lastName,
-                            validator: (value) => controller.validateFieldNotEmpty(
+                            validator: (value) => signupScreenController.validateFieldNotEmpty(
                               value,
                               StringConstants.emptyLastName,
                             ),
                             onFieldSubmitted: (p0) {
-                              FocusScope.of(context).requestFocus(controller.mobileNumberFocusNode);
+                              FocusScope.of(context)
+                                  .requestFocus(signupScreenController.mobileNumberFocusNode);
                             },
-                            focusNode: controller.lastNameFocusNode,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),
-                            ],
+                            focusNode: signupScreenController.lastNameFocusNode,
                             textInputAction: TextInputAction.next,
                           ),
                           heightSpace(20),
                           TextFormFieldWidget(
-                            controller: controller.mobileNumberController,
-                            focusNode: controller.mobileNumberFocusNode,
+                            controller: signupScreenController.mobileNumberController,
+                            focusNode: signupScreenController.mobileNumberFocusNode,
                             prefixIcon: Image.asset(
                               "assets/icons/phone_icon.png",
                               height: 24,
@@ -135,23 +124,23 @@ class _SignupScreenState extends State<SignupScreen> {
                               fit: BoxFit.fill,
                             ),
                             hint: StringConstants.mobileNumber,
-                            validator: (value) => controller.validateFieldNotEmpty(
-                              value,
-                              StringConstants.emptyMobileNumber,
-                            ),
+                            validator: (value) =>
+                                signupScreenController.validateMobileNumber(value),
                             onFieldSubmitted: (p0) {
-                              FocusScope.of(context).requestFocus(controller.mobileNumberFocusNode);
+                              FocusScope.of(context)
+                                  .requestFocus(signupScreenController.emailFocusNode);
                             },
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
                             ],
                             textInputAction: TextInputAction.next,
                             textInputType: TextInputType.phone,
                           ),
                           heightSpace(20),
                           TextFormFieldWidget(
-                            controller: controller.emailController,
-                            focusNode: controller.emailFocusNode,
+                            controller: signupScreenController.emailController,
+                            focusNode: signupScreenController.emailFocusNode,
                             prefixIcon: SvgPicture.asset(
                               "assets/icons/massage_icon.svg",
                               height: 24,
@@ -159,9 +148,10 @@ class _SignupScreenState extends State<SignupScreen> {
                               fit: BoxFit.fill,
                             ),
                             hint: StringConstants.emailAddress,
-                            validator: (value) => controller.validateEmail(value),
+                            validator: (value) => signupScreenController.validateEmail(value),
                             onFieldSubmitted: (p0) {
-                              FocusScope.of(context).requestFocus(controller.emailFocusNode);
+                              FocusScope.of(context)
+                                  .requestFocus(signupScreenController.passwordFocusNode);
                             },
                             inputFormatters: [
                               CustomFormatterForSpaceAndEmoji(),
@@ -171,8 +161,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           heightSpace(20),
                           TextFormFieldWidget(
-                            controller: controller.passController,
-                            focusNode: controller.passwordFocusNode,
+                            controller: signupScreenController.passController,
+                            focusNode: signupScreenController.passwordFocusNode,
                             hint: StringConstants.enterPassword,
                             prefixIcon: SvgPicture.asset(
                               "assets/icons/lock_app.svg",
@@ -180,7 +170,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               width: 24,
                               fit: BoxFit.fill,
                             ),
-                            obscureText: !controller.isPasswordVisible,
+                            obscureText: !signupScreenController.isPasswordVisible,
                             inputFormatters: [
                               CustomFormatterForSpaceAndEmoji(),
                               FilteringTextInputFormatter.deny(RegExp(r'\s')),
@@ -194,9 +184,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   width: 40,
                                   child: IconButton(
                                       onPressed: () {
-                                        controller.changeIsPasswordVisible();
+                                        signupScreenController.changeIsPasswordVisible();
+                                        setState(() {});
                                       },
-                                      icon: !controller.isPasswordVisible
+                                      icon: !signupScreenController.isPasswordVisible
                                           ? Image.asset(
                                               "assets/icons/close_eye.png",
                                               fit: BoxFit.fill,
@@ -211,16 +202,17 @@ class _SignupScreenState extends State<SignupScreen> {
                                 )
                               ],
                             ),
-                            validator: (value) => controller.validatePassword(value),
+                            validator: (value) => signupScreenController.validatePassword(value),
                             onFieldSubmitted: (p0) {
-                              FocusScope.of(context).requestFocus(controller.confPasswordFocusNode);
+                              FocusScope.of(context)
+                                  .requestFocus(signupScreenController.confPasswordFocusNode);
                             },
                             textInputAction: TextInputAction.next,
                           ),
                           heightSpace(20),
                           TextFormFieldWidget(
-                            controller: controller.confPassController,
-                            focusNode: controller.confPasswordFocusNode,
+                            controller: signupScreenController.confPassController,
+                            focusNode: signupScreenController.confPasswordFocusNode,
                             hint: StringConstants.enterConfirmPassword,
                             prefixIcon: SvgPicture.asset(
                               "assets/icons/lock_app.svg",
@@ -228,7 +220,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               width: 24,
                               fit: BoxFit.fill,
                             ),
-                            obscureText: !controller.isConfPasswordVisible,
+                            obscureText: !signupScreenController.isConfPasswordVisible,
                             inputFormatters: [
                               CustomFormatterForSpaceAndEmoji(),
                               FilteringTextInputFormatter.deny(RegExp(r'\s')),
@@ -242,9 +234,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   width: 40,
                                   child: IconButton(
                                       onPressed: () {
-                                        controller.changeIsConfPasswordVisible();
+                                        signupScreenController.changeIsConfPasswordVisible();
+                                        setState(() {});
                                       },
-                                      icon: !controller.isConfPasswordVisible
+                                      icon: !signupScreenController.isConfPasswordVisible
                                           ? Image.asset(
                                               "assets/icons/close_eye.png",
                                               fit: BoxFit.fill,
@@ -259,9 +252,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                 )
                               ],
                             ),
-                            validator: (value) => controller.validateConfirmPassword(value),
+                            validator: (value) =>
+                                signupScreenController.validateConfirmPassword(value),
                             onFieldSubmitted: (p0) {
-                              controller.confPasswordFocusNode.unfocus();
+                              signupScreenController.confPasswordFocusNode.unfocus();
                             },
                             textInputAction: TextInputAction.done,
                           ),
@@ -269,14 +263,15 @@ class _SignupScreenState extends State<SignupScreen> {
                           AppButton(
                             text: 'Continue',
                             textStyle: CommonTextStyle.regular16w500,
-                            onPressed: () {
-                              setState(() {});
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              if (_formKey.currentState?.validate() ?? false) {
-                                // Handle signup logic here
-                                // You can navigate to next screen or call API
-                              }
-                            },
+                            onPressed: signupScreenController.isLoading
+                                ? null
+                                : () {
+                                    setState(() {});
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    if (_formKey.currentState?.validate() ?? false) {
+                                      signupScreenController.signUp(context);
+                                    }
+                                  },
                           ),
                           heightSpace(30),
                           Row(
@@ -315,6 +310,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                               ),
                               socialButton(
+                                onTap: () {
+                                  final loginCtrl = Get.find<LoginScreenController>();
+                                  loginCtrl.googleLogin(context);
+                                },
                                 child: Image.asset(
                                   "assets/icons/google_icon.png",
                                   fit: BoxFit.fill,
@@ -362,11 +361,24 @@ class _SignupScreenState extends State<SignupScreen> {
                         ],
                       ),
                     ),
-                  );
-                },
+                    // Loading overlay
+                    if (signupScreenController.isLoading ||
+                        (Get.isRegistered<LoginScreenController>()
+                            ? Get.find<LoginScreenController>().isLoading
+                            : false))
+                      Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: ColorConstants.lightOrange,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ));
+          ));
+    });
   }
 }

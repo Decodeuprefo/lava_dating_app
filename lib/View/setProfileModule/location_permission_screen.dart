@@ -2,11 +2,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:lava_dating_app/Api/api_controller.dart';
+import 'package:lava_dating_app/View/homeModule/dashboard_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Common/constant/common_text_style.dart';
 import '../../Common/constant/custom_tools.dart';
+import '../../Common/services/storage_service.dart';
 import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
+import '../../Common/widgets/shimmers/location_permission_screen_shimmer_widget.dart';
 import '../homeModule/home_screen_splash.dart';
 
 class LocationPermissionScreen extends StatefulWidget {
@@ -19,6 +25,12 @@ class LocationPermissionScreen extends StatefulWidget {
 class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
   bool _isPermissionGranted = false;
   bool _isCheckingPermission = false;
+  bool _isLoading = false;
+  double? _latitude;
+  double? _longitude;
+  String? _city;
+  String? _country;
+  final ApiController _apiController = Get.find<ApiController>();
 
   @override
   void initState() {
@@ -36,6 +48,10 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
       _isPermissionGranted = status.isGranted;
       _isCheckingPermission = false;
     });
+
+    if (status.isGranted) {
+      await _getCurrentLocation();
+    }
   }
 
   Future<void> _requestLocationPermission() async {
@@ -53,6 +69,105 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
     if (status.isPermanentlyDenied) {
       // Show dialog to open app settings
       _showPermissionDeniedDialog();
+    } else if (status.isGranted) {
+      await _getCurrentLocation();
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _isLoading = false;
+        });
+        showSnackBar(context, 'Location services are disabled. Please enable them.',
+            isErrorMessageDisplay: true);
+        return;
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+
+      // Get city and country from coordinates using geocoding
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks[0];
+          _city = place.locality ?? place.subAdministrativeArea ?? place.administrativeArea;
+          _country = place.country;
+        }
+      } catch (e) {
+        print('Error getting address from coordinates: $e');
+        // If geocoding fails, we can still proceed with coordinates only
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error getting current location: $e');
+      showSnackBar(context, 'Failed to get location. Please try again.',
+          isErrorMessageDisplay: true);
+    }
+  }
+
+  Future<void> _updateLocation() async {
+    if (_latitude == null || _longitude == null) {
+      showSnackBar(context, 'Location data not available. Please try again.',
+          isErrorMessageDisplay: true);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final body = {
+        'latitude': _latitude,
+        'longitude': _longitude,
+        if (_city != null) 'city': _city,
+        if (_country != null) 'country': _country,
+      };
+
+      final response = await _apiController.updateUserProfile(body);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Mark profile as complete
+        await StorageService.setProfileComplete();
+        Get.offAll(() => const DashboardScreen(), transition: Transition.noTransition);
+      } else {
+        final errorMessage = _apiController.getErrorMessage(response);
+        showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      showSnackBar(context, 'Network error. Please check your connection and try again.',
+          isErrorMessageDisplay: true);
     }
   }
 
@@ -90,6 +205,16 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: BackgroundContainer(
+          child: SafeArea(
+            child: LocationPermissionScreenShimmerWidget(),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: BackgroundContainer(
         child: SafeArea(
@@ -144,13 +269,13 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                 child: AppButton(
                   text: _isPermissionGranted ? "Continue" : "Enable Continue",
-                  textStyle: CommonTextStyle.regular18w500,
-                  onPressed: _isPermissionGranted
-                      ? () {
-                          Get.to(() => const HomeScreenSplash());
-                        }
-                      : _isCheckingPermission
-                          ? null
+                  textStyle: CommonTextStyle.regular16w500,
+                  onPressed: _isLoading || _isCheckingPermission
+                      ? null
+                      : _isPermissionGranted
+                          ? () {
+                              _updateLocation();
+                            }
                           : () {
                               _requestLocationPermission();
                             },

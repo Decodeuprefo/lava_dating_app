@@ -1,16 +1,17 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:lava_dating_app/View/setProfileModule/preferred_gender_screen.dart';
+import 'package:lava_dating_app/Controller/setProfileControllers/select_height_screen_controller.dart';
 import '../../Common/constant/color_constants.dart';
 import '../../Common/constant/common_text_style.dart';
 import '../../Common/constant/custom_tools.dart';
 import '../../Common/widgets/age_range_picker_widget.dart';
 import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
+import '../../Common/widgets/glassmorphic_background_widget.dart';
 import '../../Common/widgets/height_picker_widget.dart';
-import '../../Controller/profile_module_controller.dart';
+import '../../Common/widgets/shimmers/select_height_screen_shimmer_widget.dart';
+import '../../Controller/setProfileControllers/profile_module_controller.dart';
 
 class SelectHeightScreen extends StatefulWidget {
   const SelectHeightScreen({super.key});
@@ -19,95 +20,129 @@ class SelectHeightScreen extends StatefulWidget {
   State<SelectHeightScreen> createState() => _SelectHeightScreenState();
 }
 
-final controller = Get.put(ProfileModuleController());
-
 class _SelectHeightScreenState extends State<SelectHeightScreen> {
+  final profileController = Get.find<ProfileModuleController>();
+  late SelectHeightScreenController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<SelectHeightScreenController>()) {
+      Get.put(SelectHeightScreenController());
+    }
+    controller = Get.find<SelectHeightScreenController>();
+  }
+
+  @override
+  void dispose() {
+    try {
+      if (Get.isRegistered<SelectHeightScreenController>()) {
+        Get.delete<SelectHeightScreenController>();
+      }
+    } catch (e) {}
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      heightSpace(13),
-                      InkWell(
-                        onTap: Get.back,
-                        child: SvgPicture.asset(
-                          "assets/icons/back_arrow.svg",
-                          height: 30,
-                          width: 30,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      heightSpace(90),
-                      const CommonTextWidget(
-                        text: "How tall are you?",
-                        textType: TextType.head,
-                      ),
-                      heightSpace(100),
-                      Obx(
-                        () => HeightPickerWidget(
-                          key: ValueKey('height_picker_${controller.feetORCm.value}'),
-                          minHeight: controller.minHeight.value,
-                          maxHeight: controller.maxHeight.value,
-                          isFtCm: controller.feetORCm,
-                          onMinHeightChanged: (hig) {
-                            controller.minHeight.value = hig;
-                          },
-                          onMaxHeightChanged: (hig) {
-                            controller.maxHeight.value = hig;
-                          },
-                        ),
-                      ),
-                      heightSpace(30),
-                      // Height Unit Selector
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return GetBuilder<SelectHeightScreenController>(
+      builder: (controller) {
+        if (controller.isLoading) {
+          return const Scaffold(
+            body: BackgroundContainer(
+              child: SafeArea(
+                child: SelectHeightScreenShimmerWidget(),
+              ),
+            ),
+          );
+        }
+        return Scaffold(
+          body: BackgroundContainer(
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Height unit",
-                            style: CommonTextStyle.regular14w400.copyWith(
-                              color: Colors.white.withOpacity(0.7),
+                          heightSpace(13),
+                          InkWell(
+                            onTap: Get.back,
+                            child: SvgPicture.asset(
+                              "assets/icons/back_arrow.svg",
+                              height: 30,
+                              width: 30,
+                              fit: BoxFit.fill,
                             ),
                           ),
+                          heightSpace(90),
+                          const CommonTextWidget(
+                            text: "How tall are you?",
+                            textType: TextType.head,
+                          ),
+                          heightSpace(100),
                           Obx(
-                            () => _buildGlassSegmentedControl(
-                              selectedValue: controller.heightUnit.value,
-                              onValueChanged: (value) => controller.heightUnit.value = value,
+                            () => HeightPickerWidget(
+                              key:
+                                  ValueKey('height_picker_${profileController.feetORCm.value}'),
+                              minHeight: profileController.minHeight.value,
+                              maxHeight: profileController.maxHeight.value,
+                              isFtCm: profileController.feetORCm,
+                              onMinHeightChanged: (hig) {
+                                profileController.minHeight.value = hig;
+                              },
+                              onMaxHeightChanged: (hig) {
+                                profileController.maxHeight.value = hig;
+                              },
                             ),
                           ),
+                          heightSpace(30),
+                          // Height Unit Selector
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Height unit",
+                                style: CommonTextStyle.regular14w400.copyWith(
+                                  color: Colors.white.withOpacity(0.7),
+                                ),
+                              ),
+                              Obx(
+                                () => _buildGlassSegmentedControl(
+                                  selectedValue: profileController.heightUnit.value,
+                                  onValueChanged: (value) =>
+                                      profileController.heightUnit.value = value,
+                                ),
+                              ),
+                            ],
+                          ),
+                          heightSpace(40),
                         ],
                       ),
-                      heightSpace(40),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                child: Builder(
-                  builder: (context) => AppButton(
-                    text: "Continue",
-                    textStyle: CommonTextStyle.regular18w500,
-                    onPressed: () {
-                      // Navigate to next screen - you can update this
-                      Get.to(() => const PreferredGenderScreen());
-                    },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: Builder(
+                      builder: (context) => AppButton(
+                        text: "Continue",
+                        textStyle: CommonTextStyle.regular16w500,
+                        onPressed: () {
+                          controller.updateHeight(context);
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ).marginSymmetric(horizontal: 20),
-        ),
-      ),
+                ],
+              ).marginSymmetric(horizontal: 20),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -115,46 +150,39 @@ class _SelectHeightScreenState extends State<SelectHeightScreen> {
     required String selectedValue,
     required Function(String) onValueChanged,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0x752A1F3A),
-            border: Border.all(
-              color: const Color(0x66A898B8),
-              width: 1.0,
-            ),
+    return GlassmorphicBackgroundWidget(
+      borderRadius: 10,
+      padding: EdgeInsets.zero,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildGlassSegment(
+            label: "ft/in",
+            isSelected: selectedValue == "ft/in",
+            onTap: () {
+              onValueChanged("ft/in");
+              profileController.feetORCm.value = true;
+              // Set default values when switching to ft/in
+              if (profileController.minHeight.value < 4 || profileController.minHeight.value > 7) {
+                profileController.minHeight.value = 5;
+              }
+              if (profileController.maxHeight.value < 0 || profileController.maxHeight.value > 11) {
+                profileController.maxHeight.value = 0;
+              }
+            },
+            isLeft: profileController.feetORCm,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildGlassSegment(
-                label: "ft/in",
-                isSelected: selectedValue == "ft/in",
-                onTap: () {
-                  onValueChanged("ft/in");
-                  controller.feetORCm.value = true;
-                },
-                isLeft: controller.feetORCm,
-              ),
-              _buildGlassSegment(
-                label: "cm",
-                isSelected: selectedValue == "cm",
-                onTap: () {
-                  // Set default height to 160 cm first, then change mode
-                  // This ensures the widget gets the correct value when it rebuilds
-                  controller.minHeight.value = 160;
-                  onValueChanged("cm");
-                  controller.feetORCm.value = false;
-                },
-                isLeft: controller.feetORCm,
-              ),
-            ],
+          _buildGlassSegment(
+            label: "cm",
+            isSelected: selectedValue == "cm",
+            onTap: () {
+              profileController.minHeight.value = 160;
+              onValueChanged("cm");
+              profileController.feetORCm.value = false;
+            },
+            isLeft: profileController.feetORCm,
           ),
-        ),
+        ],
       ),
     );
   }

@@ -5,12 +5,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lava_dating_app/Common/constant/color_constants.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Common/constant/common_text_style.dart';
 import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
-import 'intro_video_screen.dart';
+import '../../Common/widgets/shimmers/add_profile_photos_screen_shimmer_widget.dart';
+import '../../Controller/setProfileControllers/add_profile_photos_screen_controller.dart';
 
 class AddProfilePhotosScreen extends StatefulWidget {
   const AddProfilePhotosScreen({super.key});
@@ -24,6 +26,24 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
   final ImagePicker _picker = ImagePicker();
   final int _maxImages = 6;
 
+  @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<AddProfilePhotosScreenController>()) {
+      Get.put(AddProfilePhotosScreenController());
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      if (Get.isRegistered<AddProfilePhotosScreenController>()) {
+        Get.delete<AddProfilePhotosScreenController>();
+      }
+    } catch (e) {}
+    super.dispose();
+  }
+
   Future<bool> _requestPermission() async {
     if (Platform.isAndroid) {
       if (await Permission.photos.isGranted ||
@@ -34,13 +54,10 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
 
       PermissionStatus status;
       if (Platform.isAndroid && Platform.version.compareTo('33') >= 0) {
-        // Android 13+ (API 33+)
         status = await Permission.photos.request();
       } else {
-        // Android 12 and below
         status = await Permission.storage.request();
       }
-
       return status.isGranted;
     } else if (Platform.isIOS) {
       final status = await Permission.photos.request();
@@ -93,54 +110,77 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    heightSpace(13),
-                    InkWell(
-                      onTap: Get.back,
-                      child: SvgPicture.asset(
-                        "assets/icons/back_arrow.svg",
-                        height: 30,
-                        width: 30,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    heightSpace(90),
-                    const CommonTextWidget(
-                      text: 'Get your shine on, add your photos.',
-                      textType: TextType.head,
-                    ),
-                    const CommonTextWidget(
-                      text:
-                          'Let’s add 1 to start. Profiles with more than 3 photos are more likely to match',
-                      textType: TextType.des,
-                    ),
-                    heightSpace(50),
-                    _selectedImages.isEmpty ? selectImagePlaceholder() : _buildGridView(),
-                  ],
-                ).marginSymmetric(horizontal: 20),
+    return GetBuilder<AddProfilePhotosScreenController>(
+      builder: (controller) {
+        if (controller.isLoading) {
+          return const Scaffold(
+            body: BackgroundContainer(
+              child: SafeArea(
+                child: AddProfilePhotosScreenShimmerWidget(),
               ),
-              AppButton(
-                text: "Continue",
-                textStyle: CommonTextStyle.regular16w500,
-                onPressed: () {
-                  Get.to(() => const IntroVideoScreen());
-                },
-              ).marginSymmetric(horizontal: 20, vertical: 20)
-            ],
+            ),
+          );
+        }
+        return Scaffold(
+          body: BackgroundContainer(
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        heightSpace(13),
+                        InkWell(
+                          onTap: Get.back,
+                          child: SvgPicture.asset(
+                            "assets/icons/back_arrow.svg",
+                            height: 30,
+                            width: 30,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        heightSpace(90),
+                        const CommonTextWidget(
+                          text: 'Get your shine on',
+                          textType: TextType.head,
+                        ),
+                        const CommonTextWidget(
+                          text:
+                              'Add your photos here. Starting with one will spark a flame🔥, but more than 3 photos usually ignites more matches 🔥🔥🔥',
+                          textType: TextType.des,
+                        ),
+                        heightSpace(50),
+                        _selectedImages.isEmpty ? selectImagePlaceholder() : _buildGridView(),
+                      ],
+                    ).marginSymmetric(horizontal: 20),
+                  ),
+                  AppButton(
+                    text: "Continue",
+                    textStyle: CommonTextStyle.regular16w500,
+                    onPressed: controller.isLoading
+                        ? null
+                        : () {
+                            if (_selectedImages.isEmpty) {
+                              showSnackBar(context, 'Please select at least one photo to continue.',
+                                  isErrorMessageDisplay: true);
+                              return;
+                            }
+                            // Convert List<File?> to List<File> (filtering out nulls)
+                            final List<File> photoFiles =
+                                _selectedImages.whereType<File>().toList();
+                            controller.uploadPhotos(context, photoFiles);
+                          },
+                  ).marginSymmetric(horizontal: 20, vertical: 20)
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -266,9 +306,9 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
                         // Color(0x66BBA8A8),
                         // Color(0x55AFA0A0),
 
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
+                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
                       ],
                       // stops: [0.0, 1.0],
                       stops: const [0.0, 0.5, 1.0],
@@ -335,9 +375,9 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
                   colors: [
                     // Color(0x66BBA8A8), // semi-transparent mauve-ish
                     // Color(0x55AFA0A0), // slightly different tone for depth
-                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
-                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
-                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.08),
+                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
+                    const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.1),
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),

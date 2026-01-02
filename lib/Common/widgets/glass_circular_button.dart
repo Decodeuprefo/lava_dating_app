@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
+import 'glassmorphic_background_widget.dart';
 
 class GlassCircularButton extends StatelessWidget {
   final Widget? icon;
@@ -19,83 +19,51 @@ class GlassCircularButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double circularRadius = size / 2;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
           onTap: onTap,
           child: ClipOval(
-            child: Stack(
-              children: [
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: Container(
-                    width: size,
-                    height: size,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.transparent,
-                    ),
-                  ),
-                ),
-                // Glass effect overlay with semi-transparent purple tint
-                Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        // const Color(0xFF2A1F3A).withOpacity(0.15),
-                        // const Color(0xFF2A1F3A).withOpacity(0.20),
-                        // const Color(0xFF2A1F3A).withOpacity(0.25),
-
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
-                        const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.06),
-                      ],
-                      stops: const [0.0, 0.5, 1.0],
-                    ),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.25),
-                      width: 1.0,
-                    ),
-                  ),
-                  child: icon != null ? Center(child: icon) : const SizedBox.shrink(),
-                ),
-                // Top-left shine/reflection for glass depth
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: ClipOval(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withOpacity(0.25),
-                              Colors.white.withOpacity(0.12),
-                              Colors.white.withOpacity(0.06),
-                              Colors.transparent,
-                            ],
-                            stops: const [0.0, 0.10, 0.20, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            child: GlassmorphicBackgroundWidget(
+              width: size,
+              height: size,
+              borderRadius: circularRadius,
+              blur: 8.0,
+              border: 0.8,
+              alignment: Alignment.center,
+              linearGradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromRGBO(255, 255, 255, 0.11),
+                  Color.fromRGBO(255, 255, 255, 0.11),
+                ],
+                stops: [0.5, 0.5],
+              ),
+              borderGradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                  const Color.fromRGBO(255, 255, 255, 0.1).withOpacity(0.2),
+                ],
+                stops: const [0.0, 0.5, 1.0, 0.55, 0.70, 0.85, 1.00],
+              ),
+              child: icon != null ? Center(child: icon) : const SizedBox.shrink(),
             ),
           ),
         ),
         heightSpace(5),
         Text(
           label,
-          style: CommonTextStyle.regular14w500,
+          style: CommonTextStyle.regular14w500.copyWith(fontFamily: "Poppins-Medium"),
         ),
       ],
     );

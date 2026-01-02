@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
 def localProperties = new Properties()
@@ -28,7 +29,7 @@ if (flutterSdkPath == null) {
 }
 
 android {
-    namespace "com.example.lava_dating_app"
+    namespace "com.lava.dating"
     compileSdkVersion 34
     ndkVersion "21.4.7075529"
     compileOptions {
@@ -42,7 +43,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
-        
+
         // Add Flutter plugin source directories
         // The Flutter Gradle plugin should handle this automatically, but we add it here as a fallback
         def flutterPluginRegistrantFile = new File(rootProject.projectDir.parentFile, '.flutter-plugins')
@@ -66,7 +67,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.lava_dating_app"
+        applicationId "com.lava.dating"
         minSdkVersion 24
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
@@ -89,43 +90,53 @@ flutter {
 dependencies {
     // Kotlin standard library
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0"
+
+    // Google Play Services - required for google_sign_in
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
     
+    // Google Play Services Location - required for geolocator
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+
+    // AndroidX Core - for WindowCompat
+    implementation "androidx.core:core:1.13.1"
+    implementation "androidx.core:core-ktx:1.13.1"
+
     // ReLinker is required by Flutter for native library loading
     implementation "com.getkeepsafe.relinker:relinker:1.4.5"
-    
+
     // AndroidX Lifecycle dependencies - required by FlutterActivity
     implementation "androidx.lifecycle:lifecycle-runtime:2.7.0"
     implementation "androidx.lifecycle:lifecycle-common:2.7.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
-    
+
     // AndroidX Core dependencies - required by Flutter embedding
     implementation "androidx.core:core:1.13.1"
     implementation "androidx.core:core-ktx:1.13.1"
-    
+
     // AndroidX Activity - required by FlutterActivity
     implementation "androidx.activity:activity:1.9.2"
     implementation "androidx.activity:activity-ktx:1.9.2"
-    
+
     // AndroidX Fragment - required by Flutter embedding
     implementation "androidx.fragment:fragment:1.7.1"
     implementation "androidx.fragment:fragment-ktx:1.7.1"
-    
+
     // AndroidX Annotation - required by Flutter
     implementation "androidx.annotation:annotation:1.8.0"
-    
+
     // AndroidX ExifInterface - required by image_picker plugin
     implementation "androidx.exifinterface:exifinterface:1.3.7"
-    
+
     // AndroidX Window - required by Flutter embedding for WindowMetricsCalculator
     implementation "androidx.window:window:1.2.0"
     implementation "androidx.window:window-java:1.2.0"
-    
+
     // AndroidX Media3 - required by video_player_android plugin
     implementation "androidx.media3:media3-common:1.2.1"
     implementation "androidx.media3:media3-exoplayer:1.2.1"
     implementation "androidx.media3:media3-datasource:1.2.1"
     implementation "androidx.media3:media3-exoplayer-rtsp:1.2.1"
-    
+
     // Flutter embedding JAR - required for FlutterActivity and other Flutter classes
     // The Flutter Gradle plugin adds native libraries but not the embedding JAR
     def flutterJar = new File(flutterSdkPath, "bin/cache/artifacts/engine/android-arm64/flutter.jar")
@@ -138,7 +149,7 @@ dependencies {
     if (!flutterJar.exists()) {
         flutterJar = new File(flutterSdkPath, "bin/cache/artifacts/engine/android/flutter.jar")
     }
-    
+
     if (flutterJar.exists()) {
         // Add Flutter JAR - increased heap size should handle Jetifier transformation
         // If heap issues persist, consider disabling Jetifier: android.enableJetifier=false

@@ -109,8 +109,8 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
           ),
 
           Positioned(
-            top: 0,
-            left: centerX - 60,
+            top: -5,
+            left: centerX - 50,
             child: SizedBox(
               width: 130,
               height: 130,
@@ -153,7 +153,7 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
 
           Positioned(
             bottom: -70,
-            left: 30,
+            left: 20,
             child: SizedBox(
               width: 130,
               height: 130,
@@ -188,11 +188,11 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
       children: [
         AppButton(
           text: "Say Hello",
-          onPressed: widget.onSayHello ?? () {},
+          onPressed: /*widget.onSayHello ?? */ () {},
           backgroundColor: Colors.transparent,
           borderColor: ColorConstants.lightOrange,
           borderRadius: 12,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 13),
           width: double.infinity,
           textStyle: CommonTextStyle.regular16w500.copyWith(
             color: Colors.white,
@@ -205,7 +205,7 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
           onPressed: widget.onKeepSwiping ?? () {},
           backgroundColor: ColorConstants.lightOrange,
           borderRadius: 12,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 13),
           width: double.infinity,
           textStyle: CommonTextStyle.regular16w500.copyWith(
             color: Colors.white,

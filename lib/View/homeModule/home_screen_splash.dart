@@ -9,10 +9,12 @@ import 'package:lava_dating_app/Controller/home_screen_controller.dart';
 import 'package:lava_dating_app/View/chatModule/notification_list_screen.dart';
 import 'package:lava_dating_app/View/homeModule/swipe_screen.dart';
 import '../../Common/constant/color_constants.dart';
+import '../../Common/services/storage_service.dart';
 import '../../Common/widgets/animated_white_button.dart';
 import '../../Common/widgets/glass_circular_button.dart';
 import '../../Common/widgets/glass_profile_card.dart';
 import '../../Common/widgets/glass_match_card.dart';
+import '../../Common/widgets/shimmers/home_screen_shimmer_widget.dart';
 
 class HomeScreenSplash extends StatefulWidget {
   const HomeScreenSplash({super.key});
@@ -21,7 +23,7 @@ class HomeScreenSplash extends StatefulWidget {
   State<HomeScreenSplash> createState() => _HomeScreenSplashState();
 }
 
-class _HomeScreenSplashState extends State<HomeScreenSplash> {
+class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBindingObserver {
   final RxInt matchesCount = 16.obs;
   final RxInt swipesLeft = 16.obs;
   final RxInt totalSwipes = 30.obs;
@@ -29,121 +31,222 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
   final controller = Get.put(HomeScreenController());
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkAndShowSafetyDialog();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // App is going to background - set killed flag
+      StorageService.setAppKilledFlag();
+    } else if (state == AppLifecycleState.resumed) {
+      // App resumed - check if it was killed
+      _checkAndShowSafetyDialog();
+    }
+  }
+
+  Future<void> _checkAndShowSafetyDialog() async {
+    // Wait a bit for the screen to build
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+
+    // Check if it's first launch
+    final isFirstLaunch = !StorageService.isSafetyDialogShownOnFirstLaunch();
+
+    // Check if app was killed and user returned
+    final wasKilled = await StorageService.checkAndClearAppKilledFlag();
+
+    // Show dialog if first launch OR app was killed
+    if (isFirstLaunch || wasKilled) {
+      if (isFirstLaunch) {
+        await StorageService.setSafetyDialogShownOnFirstLaunch();
+      }
+
+      // Show dialog
+      _showSafetyDialog(Navigator.of(context, rootNavigator: true).context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-          child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          heightSpace(22),
-                          const Text(
-                            "Hi Jennifer",
-                            style: CommonTextStyle.regular14w500,
-                          ),
-                          const Text(
-                            "Welcome back!",
-                            style: CommonTextStyle.regular22w600,
-                          ),
-                        ],
-                      ),
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            Get.to(() => const NotificationListScreen());
-                          },
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.asset(
-                            "assets/icons/notification_icon.png",
-                            height: 30,
-                            width: 30,
-                          ),
+    return GetBuilder<HomeScreenController>(
+      builder: (homeController) {
+        if (homeController.isLoading) {
+          return const Scaffold(
+            body: BackgroundContainer(
+              child: SafeArea(
+                child: HomeScreenShimmerWidget(),
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: BackgroundContainer(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                heightSpace(22),
+                                Text(
+                                  homeController.homeData?.user?.firstName != null
+                                      ? "Hi ${homeController.homeData!.user!.firstName}"
+                                      : "",
+                                  style: CommonTextStyle.regular14w500,
+                                ),
+                                Text(
+                                  "Welcome back!",
+                                  style: CommonTextStyle.regular22w600
+                                      .copyWith(fontFamily: "Poppins-SemiBold"),
+                                ),
+                              ],
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  Get.to(() => const NotificationListScreen());
+                                },
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image.asset(
+                                  "assets/icons/notification_icon.png",
+                                  height: 30,
+                                  width: 30,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                  heightSpace(24),
-                  Row(
-                    children: [
-                      _buildMatchesCard(),
-                      widthSpace(15),
-                      Flexible(
-                        flex: 3,
-                        child: _buildSwipesCard(),
-                      ),
-                    ],
-                  ),
-                  heightSpace(30),
-                  _buildCircularGlassButtons(),
-                  heightSpace(30),
-                  const Text(
-                    "Suggestion",
-                    style: CommonTextStyle.regular18w500,
-                  ),
-                  heightSpace(10),
-                  // Horizontal scrollable profile cards
-                ],
-              ).marginSymmetric(horizontal: 20),
-              SizedBox(
-                height: 170,
-                child: _buildSuggestionsList(),
+                        heightSpace(24),
+                        Row(
+                          children: [
+                            SizedBox(height: 86, child: _buildMatchesCard(homeController)),
+                            widthSpace(15),
+                            Flexible(
+                              flex: (homeController.homeData?.stats?.isUnlimitedSwipes ?? false)
+                                  ? 3
+                                  : 2,
+                              child: _buildSwipesCard(homeController),
+                            ),
+                          ],
+                        ),
+                        heightSpace(30),
+                        _buildCircularGlassButtons(),
+                        heightSpace(30),
+                      ],
+                    ).marginSymmetric(horizontal: 20),
+                    homeController.homeData?.suggestions == null ||
+                            homeController.homeData?.suggestions?.isEmpty == true
+                        ? const SizedBox()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Suggestion",
+                                style: CommonTextStyle.regular16w500,
+                              ).marginOnly(left: 20),
+                              heightSpace(10),
+                              SizedBox(
+                                height: 180,
+                                child: _buildSuggestionsList(),
+                              ),
+                              heightSpace(30),
+                            ],
+                          ),
+                    homeController.homeData?.recentMatches?.isEmpty == true ||
+                            homeController.homeData?.recentMatches == null
+                        ? const SizedBox()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Matches",
+                                style: CommonTextStyle.regular16w500,
+                                textAlign: TextAlign.start,
+                              ).marginSymmetric(horizontal: 20),
+                              heightSpace(10),
+                              SizedBox(
+                                height: 150,
+                                child: _buildMatchesList(),
+                              ),
+                              heightSpace(20)
+                            ],
+                          ),
+                    homeController.homeData?.recentMatches?.isEmpty == true ||
+                            homeController.homeData?.recentMatches == null ||
+                            homeController.homeData?.suggestions == null ||
+                            homeController.homeData?.suggestions?.isEmpty == true
+                        ? const Center(
+                            child: Text(
+                            "No Data Found!",
+                            style: CommonTextStyle.regular16w500,
+                          ))
+                        : const SizedBox(),
+                    heightSpace(100),
+                  ],
+                ),
               ),
-              heightSpace(30),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Matches",
-                    style: CommonTextStyle.regular18w500,
-                  ).marginSymmetric(horizontal: 20),
-                  heightSpace(10),
-                  SizedBox(
-                    height: 140,
-                    child: _buildMatchesList(),
-                  ),
-                  heightSpace(20)
-                ],
-              ),
-              heightSpace(100),
-            ],
+            ),
           ),
-        ),
-      )),
+        );
+      },
     );
   }
 
   Widget _buildMatchesList() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: controller.matches.length,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 20,
-      ),
-      itemBuilder: (context, index) {
-        final match = controller.matches[index];
-        return Padding(
-          padding: const EdgeInsets.only(
-            right: 10,
+    return GetBuilder<HomeScreenController>(
+      builder: (homeController) {
+        final recentMatches = homeController.homeData?.recentMatches ?? [];
+        if (recentMatches.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: recentMatches.length,
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: 20,
           ),
-          child: GlassMatchCard(
-            name: match['name'] ?? '',
-            age: match['age'] ?? '',
-            imageUrl: match['imageUrl'],
-            onTap: () {
-              // _showSafetyDialog(context);
-              _showSafetyDialog(Navigator.of(context, rootNavigator: true).context);
-            },
-          ),
+          itemBuilder: (context, index) {
+            final match = recentMatches[index];
+            final imageUrl =
+                match.user?.photos?.isNotEmpty == true ? match.user!.photos!.first : null;
+            final name = match.user?.firstName ?? "";
+            final age = match.user?.age != null ? "Age ${match.user!.age}" : "";
+
+            return Padding(
+              padding: const EdgeInsets.only(
+                right: 10,
+              ),
+              child: GlassMatchCard(
+                name: name,
+                age: age,
+                imageUrl: imageUrl,
+                onTap: () {
+                  // Navigate to match profile or chat screen
+                },
+              ),
+            );
+          },
         );
       },
     );
@@ -222,103 +325,118 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
     );
   }
 
-  Widget _buildMatchesCard() {
-    return Obx(() => GlassBackgroundWidget(
-          borderRadius: 15,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Matches",
-                style: CommonTextStyle.regular18w500,
-              ),
-              heightSpace(4),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/icons/matches_heart_icon.png",
-                    height: 30,
-                    width: 30,
-                  ),
-                  widthSpace(12),
-                  Text(
-                    "${matchesCount.value}",
-                    style: CommonTextStyle.bold24w700,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ));
-  }
+  Widget _buildMatchesCard(HomeScreenController homeController) {
+    final matchesCount = homeController.homeData?.stats?.matchesCount ?? 0;
+    final formattedCount = matchesCount < 10 ? "0$matchesCount" : "$matchesCount";
 
-  Widget _buildSwipesCard() {
-    return Obx(() {
-      final progress = swipesLeft.value / totalSwipes.value;
-      return GlassBackgroundWidget(
-        borderRadius: 15,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        child: Row(
+    return SizedBox(
+      height: 86,
+      child: GlassBackgroundWidget(
+        borderRadius: 10,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(
-                      value: 1.0,
-                      strokeWidth: 6,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.grey.withOpacity(0.3),
-                      ),
-                      backgroundColor: Colors.transparent,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(
-                      value: progress,
-                      strokeWidth: 6,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        ColorConstants.lightOrange,
-                      ),
-                      backgroundColor: ColorConstants.circularColor,
-                      strokeCap: StrokeCap.round,
-                    ),
-                  ),
-                ],
-              ),
+            const Text(
+              "Matches",
+              style: CommonTextStyle.regular18w500,
             ),
-            widthSpace(15),
-            // Text content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Swipes Left: ${swipesLeft.value}/${totalSwipes.value}",
-                    style: CommonTextStyle.regular18w500,
-                  ),
-                  heightSpace(5),
-                  Text(
-                    isUnlimitedSwipes.value ? "Unlimited Swipes" : "",
-                    style: CommonTextStyle.regular14w500,
-                  ),
-                ],
-              ),
+            heightSpace(4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/icons/matches_heart_icon.png",
+                  height: 30,
+                  width: 30,
+                ),
+                widthSpace(12),
+                Text(
+                  formattedCount,
+                  style: CommonTextStyle.bold24w700,
+                ),
+              ],
             ),
           ],
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  Widget _buildSwipesCard(HomeScreenController homeController) {
+    final remainingSwipes = homeController.homeData?.stats?.remainingSwipes ?? 0;
+    final totalDailySwipes = homeController.homeData?.stats?.totalDailySwipes ?? 100;
+    final isUnlimitedSwipes = homeController.homeData?.stats?.isUnlimitedSwipes ?? false;
+
+    // Calculate progress (avoid division by zero)
+    final progress = totalDailySwipes > 0 ? remainingSwipes / totalDailySwipes : 0.0;
+
+    return GlassBackgroundWidget(
+      borderRadius: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 50,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(
+                    value: 1.0,
+                    strokeWidth: 6,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.grey.withOpacity(0.3),
+                    ),
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 6,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      ColorConstants.lightOrange,
+                    ),
+                    backgroundColor: ColorConstants.circularColor,
+                    strokeCap: StrokeCap.round,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          widthSpace(15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Swipes Left: $remainingSwipes/$totalDailySwipes",
+                  style: CommonTextStyle.regular18w500,
+                ),
+                isUnlimitedSwipes
+                    ? Column(
+                        children: [
+                          heightSpace(5),
+                          const Text(
+                            "Unlimited Swipes",
+                            style: CommonTextStyle.regular14w500,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCircularGlassButtons() {
@@ -370,23 +488,51 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> {
   }
 
   Widget _buildSuggestionsList() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: controller.suggestions.length,
-      padding: const EdgeInsetsDirectional.only(start: 20),
-      itemBuilder: (context, index) {
-        final suggestion = controller.suggestions[index];
-        return Padding(
-          padding: const EdgeInsets.only(
-            right: 16,
-          ),
-          child: GlassProfileCard(
-            firstLineText: suggestion['firstLine'] ?? '',
-            secondLineText: suggestion['secondLine'] ?? '',
-            onTap: () {
-              Get.to(() => const SwipeScreen());
-            },
-          ),
+    return GetBuilder<HomeScreenController>(
+      builder: (homeController) {
+        final suggestions = homeController.homeData?.suggestions ?? [];
+
+        if (suggestions.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: suggestions.length,
+          padding: const EdgeInsetsDirectional.only(start: 20),
+          itemBuilder: (context, index) {
+            final suggestion = suggestions[index];
+
+            // Get first image from photos array
+            final imageUrl =
+                suggestion.user?.photos?.isNotEmpty == true ? suggestion.user!.photos!.first : null;
+
+            // Determine first line text based on action
+            final firstLineText = suggestion.action == "SUPER_LIKE"
+                ? "This user really likes you"
+                : "This user likes you";
+
+            // Get user's first name for second line
+            final secondLineText = suggestion.user?.firstName ?? "";
+
+            // Show "View Profile" based on canSeeDetails
+            final showViewProfile = suggestion.canSeeDetails ?? false;
+
+            return Padding(
+              padding: const EdgeInsets.only(
+                right: 16,
+              ),
+              child: GlassProfileCard(
+                firstLineText: firstLineText,
+                secondLineText: secondLineText,
+                imageUrl: imageUrl,
+                showViewProfile: showViewProfile,
+                onTap: () {
+                  // Get.to(() => const SwipeScreen());
+                },
+              ),
+            );
+          },
         );
       },
     );

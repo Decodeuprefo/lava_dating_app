@@ -67,7 +67,7 @@ class _AnimatedWhiteButtonState extends State<AnimatedWhiteButton> {
           height: widget.height,
           transform: Matrix4.identity()..scale(scale, scale),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color.fromARGB(255, 255, 255, 255),
             borderRadius: BorderRadius.circular(12),
             boxShadow: boxShadow,
           ),

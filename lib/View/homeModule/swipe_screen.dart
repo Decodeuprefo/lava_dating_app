@@ -4,6 +4,9 @@ import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/widgets/custom_background.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import 'package:lava_dating_app/Common/constant/color_constants.dart';
+import 'package:lava_dating_app/Common/widgets/loading_overlay_widget.dart';
+import 'package:lava_dating_app/Common/widgets/glassmorphic_background_widget.dart';
+import 'package:lava_dating_app/Common/widgets/shimmers/swipe_screen_shimmer_widget.dart';
 import 'package:lava_dating_app/Controller/swipe_screen_controller.dart';
 import 'package:lava_dating_app/View/homeModule/match_user_profile_screen.dart';
 
@@ -19,49 +22,97 @@ class _SwipeScreenState extends State<SwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-        child: SafeArea(
-          child: Stack(
+    return GetBuilder<SwipeScreenController>(
+      builder: (swipeController) {
+        if (swipeController.isLoading && swipeController.profiles.isEmpty) {
+          return const Scaffold(
+            body: BackgroundContainer(
+              child: SafeArea(
+                child: SwipeScreenShimmerWidget(),
+              ),
+            ),
+          );
+        }
+        return Scaffold(
+          body: Stack(
             children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildSearchBar(),
-                    heightSpace(20),
-                    const Text(
-                      "Suggested Match",
-                      style: CommonTextStyle.regular22w500,
-                    ).marginSymmetric(horizontal: 20),
-                    heightSpace(20),
-                    SizedBox(
-                      height: 495,
-                      child: Stack(
-                        children: [
-                          Obx(() =>
-                              controller.hasMoreCards ? _buildCardStack() : _buildEmptyState()),
-                          Positioned(bottom: 0, left: 0, right: 0, child: _buildActionButtons()),
-                        ],
-                      ),
-                    ),
-                    heightSpace(25),
-                    _buildProgressBar(),
-                    heightSpace(20),
-                  ],
+              BackgroundContainer(
+                child: SafeArea(
+                  child: Stack(
+                    children: [
+                      Obx(() => (swipeController.profiles.isEmpty && !swipeController.isLoading) ||
+                              (!swipeController.hasMoreCards && !swipeController.isLoading)
+                          ? Column(
+                              children: [
+                                _buildSearchBar(),
+                                Expanded(
+                                  child: Center(
+                                    child: _buildEmptyState(),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  _buildSearchBar(),
+                                  heightSpace(20),
+                                  const Text(
+                                    "Suggested Match",
+                                    style: CommonTextStyle.regular22w500,
+                                  ).marginSymmetric(horizontal: 20),
+                                  heightSpace(20),
+                                  SizedBox(
+                                    height: 495,
+                                    child: Stack(
+                                      children: [
+                                        Obx(() => swipeController.hasMoreCards
+                                            ? _buildCardStack()
+                                            : _buildEmptyState()),
+                                        Positioned(
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            child: _buildActionButtons()),
+                                        // Action image overlay
+                                        Obx(() => swipeController.showActionImage.value
+                                            ? _buildActionImage(
+                                                swipeController.currentActionImage.value)
+                                            : const SizedBox.shrink()),
+                                      ],
+                                    ),
+                                  ),
+                                  heightSpace(25),
+                                  _buildProgressBar(),
+                                  heightSpace(60),
+                                ],
+                              ),
+                            )),
+                      Obx(() => controller.showSnackbar.value
+                          ? Positioned(
+                              bottom: 100, // Above bottom navigation bar (100px height)
+                              left: 20,
+                              right: 20,
+                              child: _buildSnackbar(),
+                            )
+                          : const SizedBox.shrink()),
+                    ],
+                  ),
                 ),
               ),
-              Obx(() => controller.showSnackbar.value
-                  ? Positioned(
-                      bottom: 100, // Above bottom navigation bar (100px height)
-                      left: 20,
-                      right: 20,
-                      child: _buildSnackbar(),
+              // Match loading overlay
+              Obx(() => swipeController.isMatchLoading.value
+                  ? Container(
+                      color: Colors.black.withOpacity(0.7),
+                      child: const Center(
+                        child: SwipeScreenShimmerWidget(),
+                      ),
                     )
                   : const SizedBox.shrink()),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -124,13 +175,35 @@ class _SwipeScreenState extends State<SwipeScreen> {
     return Obx(() {
       final currentIndex = controller.currentIndex.value;
       final profiles = controller.profiles;
+      final isSwiping = controller.isCardSwiping.value;
+
       if (currentIndex >= profiles.length) {
         return const SizedBox.shrink();
       }
       final profile = profiles[currentIndex];
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: _buildProfileCard(profile),
+
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0), // Start from right
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOut,
+            )),
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+          );
+        },
+        child: Padding(
+          key: ValueKey<int>(currentIndex), // Key ensures animation triggers
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: _buildProfileCard(profile),
+        ),
       );
     });
   }
@@ -218,7 +291,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
                     // Name - large bold white text
                     Text(
                       profile['name'] ?? '',
-                      style: CommonTextStyle.regular24w600,
+                      style: CommonTextStyle.regular24w600.copyWith(fontFamily: "Poppins-SemiBold"),
                     ),
                     heightSpace(10),
                     // Location with grey icon
@@ -335,6 +408,47 @@ class _SwipeScreenState extends State<SwipeScreen> {
     );
   }
 
+  Widget _buildActionImage(String actionType) {
+    String imagePath;
+    switch (actionType) {
+      case 'like':
+        imagePath = "assets/images/hibiscus_flower.png";
+        break;
+      case 'dislike':
+        imagePath = "assets/images/coconut_fruit_white.png";
+        break;
+      case 'superlike':
+        imagePath = "assets/images/lei_flower.png";
+        break;
+      default:
+        return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      top: 100,
+      left: 30,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.scale(
+              scale: 0.5 + (value * 0.5), // Scale from 0.5 to 1.0
+              child: Image.asset(
+                imagePath,
+                height: 100,
+                width: 100,
+                fit: BoxFit.contain,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildProgressBar() {
     return Obx(() {
       final swipesLeft = controller.swipesLeft.value;
@@ -394,6 +508,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
             "No more profiles",
             style: CommonTextStyle.regular18w500,
           ),
+          heightSpace(60)
         ],
       ),
     );
@@ -426,18 +541,18 @@ class _SwipeScreenState extends State<SwipeScreen> {
             children: [
               Container(
                 margin: const EdgeInsets.only(top: 20, bottom: 30),
-                width: 40,
-                height: 4,
+                width: 50,
+                height: 2,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               Row(
                 children: [
-                  const Text(
+                  Text(
                     "Filter",
-                    style: CommonTextStyle.regular20w600,
+                    style: CommonTextStyle.regular20w600.copyWith(fontFamily: "Poppins-SemiBold"),
                   ).marginOnly(left: 20),
                 ],
               ),
@@ -459,7 +574,8 @@ class _SwipeScreenState extends State<SwipeScreen> {
                 ),
               ),
               // Action Buttons
-              _buildFilterActionButtons(),
+              _buildFilterActionButtons(context),
+              heightSpace(20)
             ],
           ),
         );
@@ -468,201 +584,223 @@ class _SwipeScreenState extends State<SwipeScreen> {
   }
 
   Widget _buildLocationSection() {
-    return Obx(() => GestureDetector(
-          onTap: () {
-            // Show location picker
-            _showLocationPicker();
+    return Obx(() => _CustomLocationSelector(
+          selectedValue: controller.selectedLocation.value,
+          items: const ['San Francisco', 'New York', 'Los Angeles', 'Chicago', 'Dallas'],
+          hint: "Select Location",
+          onItemSelected: (String value) {
+            controller.setLocation(value);
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
-            decoration: BoxDecoration(
-              color: const Color(0xFF262626), // Dark charcoal grey
-              borderRadius: BorderRadius.circular(16), // More rounded corners
-              border: Border.all(
-                color: ColorConstants.lightOrange, // Bright orange border
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Location label inside container
-                    Text("Location",
-                        style: CommonTextStyle.regular11w300
-                            .copyWith(color: ColorConstants.lightOrange)),
-                    heightSpace(5),
-                    Row(
-                      children: [
-                        Text(
-                          controller.selectedLocation.value,
-                          style: CommonTextStyle.regular14w300,
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ),
-                  ],
-                ),
-                const Icon(
-                  Icons.arrow_drop_down_outlined,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ],
-            ),
-          ),
         ));
   }
 
   Widget _buildDistanceSection() {
-    return Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Distance",
-              style: CommonTextStyle.regular14w500,
-            ),
-            heightSpace(16),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: ColorConstants.lightOrange,
-                inactiveTrackColor: Colors.white.withOpacity(0.2),
-                thumbColor: Colors.white,
-                overlayColor: ColorConstants.lightOrange.withOpacity(0.2),
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-                trackHeight: 4,
-              ),
-              child: RangeSlider(
-                values: RangeValues(
-                  controller.minDistance.value,
-                  controller.maxDistance.value,
+    return Obx(() {
+      // Ensure min value is 5, but allow slider to start from 0
+      final currentValue = controller.maxDistance.value < 5 ? 5.0 : controller.maxDistance.value;
+      final clampedValue = currentValue.clamp(5.0, 100.0);
+
+      // Calculate position for the badge (0.0 to 1.0, where 0.0 is left and 1.0 is right)
+      // Map from 5-100 range to 0-1 position
+      final position = ((clampedValue - 5) / (100 - 5)).clamp(0.0, 1.0);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Distance",
+            style: CommonTextStyle.bold16w700,
+          ),
+          heightSpace(16),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: ColorConstants.lightOrange,
+                  inactiveTrackColor: ColorConstants.lightOrange.withOpacity(0.3),
+                  thumbColor: Colors.white,
+                  overlayColor: ColorConstants.lightOrange.withOpacity(0.2),
+                  thumbShape:
+                      const BorderedSliderThumbShape(enabledThumbRadius: 10, borderWidth: 1),
+                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                  trackHeight: 4,
+                  // Yeh line main hai jo full width karegi
+                  trackShape: FullWidthSliderTrackShape(),
                 ),
-                min: 0,
-                max: 30,
-                divisions: 30,
-                onChanged: (RangeValues values) {
-                  controller.setDistanceRange(values.start, values.end);
-                },
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "0 km",
-                  style: CommonTextStyle.regular12w400.copyWith(
-                    color: Colors.white.withOpacity(0.7),
+                child: SizedBox(
+                  width: double.infinity, // Poori screen ki width lega
+                  child: Slider(
+                    value: clampedValue,
+                    min: 0,
+                    max: 100,
+                    divisions: 100,
+                    onChanged: (double value) {
+                      // Clamp value to minimum 5
+                      final newValue = value < 5 ? 5.0 : value;
+                      controller.setDistanceRange(0, newValue);
+                    },
                   ),
                 ),
-                Text(
-                  "${controller.maxDistance.value.toInt()} km",
-                  style: CommonTextStyle.regular12w400.copyWith(
-                    color: Colors.white.withOpacity(0.7),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: -45,
+                child: Align(
+                  alignment: Alignment(
+                    (position * 2 - 1).clamp(-1.0, 1.0),
+                    0,
+                  ),
+                  child: _BadgeWithTail(
+                    value: "${clampedValue.toInt()} km",
                   ),
                 ),
-              ],
-            ),
-          ],
-        ));
+              ),
+            ],
+          ),
+          heightSpace(10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                "0 km",
+                style: CommonTextStyle.bold14w700.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _BadgeWithTail({required String value}) {
+    return CustomPaint(
+      painter: _BadgePainter(),
+      child: Text(
+        value,
+        style: CommonTextStyle.bold14w700.copyWith(
+          color: Colors.white,
+        ),
+      ).marginOnly(bottom: 25),
+    );
   }
 
   Widget _buildAgeSection() {
-    return Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Age",
-              style: CommonTextStyle.regular14w500,
-            ),
-            heightSpace(16),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: ColorConstants.lightOrange,
-                inactiveTrackColor: Colors.white.withOpacity(0.2),
-                thumbColor: Colors.white,
-                overlayColor: ColorConstants.lightOrange.withOpacity(0.2),
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
-                trackHeight: 4,
+    return Obx(() {
+      final minAge = controller.minAge.value;
+      final maxAge = controller.maxAge.value;
+
+      // Calculate positions for both thumbs (0.0 to 1.0)
+      final minPosition = ((minAge - 18) / (100 - 18)).clamp(0.0, 1.0);
+      final maxPosition = ((maxAge - 18) / (100 - 18)).clamp(0.0, 1.0);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Age", style: CommonTextStyle.bold16w700),
+          heightSpace(16),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: ColorConstants.lightOrange,
+                  inactiveTrackColor: ColorConstants.lightOrange.withOpacity(0.3),
+                  thumbColor: Colors.white,
+                  overlayColor: ColorConstants.lightOrange.withOpacity(0.2),
+                  rangeThumbShape:
+                      const BorderedRangeSliderThumbShape(enabledThumbRadius: 10, borderWidth: 1),
+                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                  trackHeight: 4,
+                  rangeTrackShape: FullWidthRangeSliderTrackShape(),
+                ),
+                child: SizedBox(
+                  width: double.infinity, // Ye ab kaam karega
+                  child: RangeSlider(
+                    values: RangeValues(minAge, maxAge),
+                    min: 18,
+                    max: 100,
+                    divisions: 82,
+                    onChanged: (RangeValues values) {
+                      controller.setAgeRange(values.start, values.end);
+                    },
+                  ),
+                ),
               ),
-              child: RangeSlider(
-                values: RangeValues(
-                  controller.minAge.value,
-                  controller.maxAge.value,
+              // Badge for min age
+              Positioned(
+                left: 0,
+                right: 15,
+                bottom: -45,
+                child: Align(
+                  alignment: Alignment(
+                    (minPosition * 2 - 1).clamp(-1.0, 1.0),
+                    0,
+                  ),
+                  child: _BadgeWithTail(
+                    value: "${minAge.toInt()}",
+                  ),
                 ),
-                min: 18,
-                max: 100,
-                divisions: 82,
-                onChanged: (RangeValues values) {
-                  controller.setAgeRange(values.start, values.end);
-                },
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${controller.minAge.value.toInt()}",
-                  style: CommonTextStyle.regular14w500,
+              // Badge for max age
+              Positioned(
+                left: 0,
+                right: 15,
+                bottom: -45,
+                child: Align(
+                  alignment: Alignment(
+                    (maxPosition * 2 - 1).clamp(-1.0, 1.0),
+                    0,
+                  ),
+                  child: _BadgeWithTail(
+                    value: "${maxAge.toInt()}",
+                  ),
                 ),
-                Text(
-                  "${controller.maxAge.value.toInt()}",
-                  style: CommonTextStyle.regular14w500,
-                ),
-              ],
-            ),
-          ],
-        ));
+              ),
+            ],
+          ),
+          heightSpace(10),
+        ],
+      );
+    });
   }
 
   Widget _buildInterestedInSection() {
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Interested In",
-              style: CommonTextStyle.regular14w500,
-            ),
+            const Text("Interested In", style: CommonTextStyle.bold16w700),
             heightSpace(16),
             Row(
               children: [
                 Expanded(
-                  child: _buildGenderButton(
-                    label: "Man",
-                    isSelected: controller.selectedGender.value == 'Man',
-                    onTap: () => controller.setGender('Man'),
-                  ),
-                ),
+                    child: _buildGenderButton(
+                        label: "Man",
+                        isSelected: controller.selectedGender.value == 'Man',
+                        onTap: () => controller.setGender('Man'))),
                 widthSpace(12),
                 Expanded(
-                  child: _buildGenderButton(
-                    label: "Women",
-                    isSelected: controller.selectedGender.value == 'Women',
-                    onTap: () => controller.setGender('Women'),
-                  ),
-                ),
+                    child: _buildGenderButton(
+                        label: "Women",
+                        isSelected: controller.selectedGender.value == 'Women',
+                        onTap: () => controller.setGender('Women'))),
                 widthSpace(12),
                 Expanded(
-                  child: _buildGenderButton(
-                    label: "Other",
-                    isSelected: controller.selectedGender.value == 'Other',
-                    onTap: () => controller.setGender('Other'),
-                  ),
-                ),
+                    child: _buildGenderButton(
+                        label: "Other",
+                        isSelected: controller.selectedGender.value == 'Other',
+                        onTap: () => controller.setGender('Other'))),
               ],
             ),
           ],
         ));
   }
 
-  Widget _buildGenderButton({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildGenderButton(
+      {required String label, required bool isSelected, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -671,53 +809,40 @@ class _SwipeScreenState extends State<SwipeScreen> {
           color: isSelected ? ColorConstants.lightOrange : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? ColorConstants.lightOrange : Colors.white.withOpacity(0.3),
-            width: 1,
-          ),
+              color: isSelected ? ColorConstants.lightOrange : Colors.white.withOpacity(0.3),
+              width: 1),
         ),
         child: Center(
-          child: Text(
-            label,
-            style: CommonTextStyle.regular14w500.copyWith(
-              color: isSelected ? Colors.white : Colors.white,
-            ),
-          ),
-        ),
+            child: Text(label,
+                style: CommonTextStyle.regular14w500
+                    .copyWith(color: isSelected ? Colors.white : Colors.white))),
       ),
     );
   }
 
-  Widget _buildFilterActionButtons() {
+  Widget _buildFilterActionButtons(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Color.fromRGBO(0, 0, 0, 0.8),
-      ),
+      decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.8)),
       child: Row(
         children: [
           Expanded(
             child: GestureDetector(
               onTap: () {
                 controller.clearAllFilters();
+                Navigator.pop(context);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 13),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: ColorConstants.lightOrange,
-                    width: 1.5,
-                  ),
+                  border: Border.all(color: ColorConstants.lightOrange, width: 1),
                 ),
                 child: Center(
-                  child: Text(
-                    "Clear All",
-                    style: CommonTextStyle.regular16w500.copyWith(
-                      color: ColorConstants.lightOrange,
-                    ),
-                  ),
-                ),
+                    child: Text("Clear All",
+                        style: CommonTextStyle.regular16w400
+                            .copyWith(color: ColorConstants.lightOrange))),
               ),
             ),
           ),
@@ -729,72 +854,16 @@ class _SwipeScreenState extends State<SwipeScreen> {
                 Navigator.pop(context);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 13),
                 decoration: BoxDecoration(
-                  color: ColorConstants.lightOrange,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                    color: ColorConstants.lightOrange, borderRadius: BorderRadius.circular(12)),
                 child: Center(
-                  child: Text(
-                    "Apply",
-                    style: CommonTextStyle.regular16w500.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                    child: Text("Apply",
+                        style: CommonTextStyle.regular16w400.copyWith(color: Colors.white))),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showLocationPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF2A2A2A),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const Text(
-              "Select Location",
-              style: CommonTextStyle.regular20w600,
-            ),
-            heightSpace(20),
-            ...['San Francisco', 'New York', 'Los Angeles', 'Chicago', 'Dallas']
-                .map((location) => ListTile(
-                      title: Text(
-                        location,
-                        style: CommonTextStyle.regular16w500,
-                      ),
-                      onTap: () {
-                        controller.setLocation(location);
-                        Navigator.pop(context);
-                      },
-                    ))
-                .toList(),
-            heightSpace(20),
-          ],
-        ),
       ),
     );
   }
@@ -807,31 +876,223 @@ class _SwipeScreenState extends State<SwipeScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
+              color: Colors.black.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))
         ],
       ),
       child: Row(
         children: [
           Expanded(
-            child: Obx(() => Text("💖 ${controller.snackbarMessage.value}",
-                style: CommonTextStyle.regular14w500.copyWith(color: Colors.black))),
-          ),
+              child: Obx(() => Text("💖 ${controller.snackbarMessage.value}",
+                  style: CommonTextStyle.regular14w500.copyWith(color: Colors.black)))),
           widthSpace(12),
           GestureDetector(
-            onTap: () {
-              controller.undoLastAction();
-            },
+            onTap: () => controller.undoLastAction(),
             child: Text('Undo',
                 style: CommonTextStyle.regular14w600.copyWith(
-                  color: ColorConstants.lightOrange,
-                  decoration: TextDecoration.underline,
-                )),
+                    color: ColorConstants.lightOrange, decoration: TextDecoration.underline)),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _BadgePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.transparent
+      ..style = PaintingStyle.fill;
+
+    const triangleHeight = 8.0;
+    final badgeHeight = size.height - triangleHeight;
+    final badgeWidth = size.width;
+    const borderRadius = 10.0;
+    const triangleWidth = 10.0;
+
+    final badgeRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, triangleHeight, badgeWidth, badgeHeight),
+      const Radius.circular(borderRadius),
+    );
+    canvas.drawRRect(badgeRect, paint);
+
+    final trianglePath = Path();
+    final centerX = badgeWidth / 2;
+    trianglePath.moveTo(centerX - triangleWidth / 2, triangleHeight);
+    trianglePath.lineTo(centerX, 0);
+    trianglePath.lineTo(centerX + triangleWidth / 2, triangleHeight);
+    trianglePath.close();
+    canvas.drawPath(trianglePath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _CustomLocationSelector extends StatefulWidget {
+  final String selectedValue;
+  final List<String> items;
+  final String hint;
+  final Function(String) onItemSelected;
+
+  const _CustomLocationSelector({
+    required this.selectedValue,
+    required this.items,
+    required this.hint,
+    required this.onItemSelected,
+  });
+
+  @override
+  State<_CustomLocationSelector> createState() => _CustomLocationSelectorState();
+}
+
+class _CustomLocationSelectorState extends State<_CustomLocationSelector>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late AnimationController _animationController;
+  late Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_CustomLocationSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Rebuild when selectedValue changes
+    if (oldWidget.selectedValue != widget.selectedValue) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpansion() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
+  void _selectItem(String item) {
+    widget.onItemSelected(item);
+    _toggleExpansion();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: _toggleExpansion,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: ColorConstants.lightOrange,
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Location",
+                      style:
+                          CommonTextStyle.regular11w300.copyWith(color: ColorConstants.lightOrange),
+                    ),
+                    heightSpace(5),
+                    Row(
+                      children: [
+                        Text(
+                          widget.selectedValue,
+                          style: CommonTextStyle.regular14w300,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ],
+                ),
+                AnimatedRotation(
+                  turns: _isExpanded ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 300),
+                  child: const Icon(
+                    Icons.arrow_drop_down_outlined,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        heightSpace(5),
+        SizeTransition(
+          sizeFactor: _expandAnimation,
+          axisAlignment: -1.0,
+          child: GlassmorphicBackgroundWidget(
+            borderRadius: 10,
+            padding: EdgeInsets.zero,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (int i = 0; i < widget.items.length; i++) ...[
+                    InkWell(
+                      onTap: () => _selectItem(widget.items[i]),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.items[i],
+                                style: CommonTextStyle.regular14w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (i < widget.items.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Image.asset(
+                          "assets/images/border_line.png",
+                          fit: BoxFit.fill,
+                          width: double.infinity,
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

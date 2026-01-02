@@ -9,7 +9,7 @@ import '../../Common/constant/custom_tools.dart';
 import '../../Common/constant/string_constants.dart';
 import '../../Common/widgets/input_formatters.dart';
 import '../../Common/widgets/text_form_field_widget.dart';
-import '../../Controller/login_screen_controller.dart';
+import '../../Controller/forgot_password_controller.dart';
 import 'login_screen.dart';
 
 class ForgotPassScreen extends StatefulWidget {
@@ -20,98 +20,127 @@ class ForgotPassScreen extends StatefulWidget {
 }
 
 class _ForgotPassScreenState extends State<ForgotPassScreen> {
-  final signInScreenController = Get.find<LoginScreenController>();
+  late final ForgotPasswordController forgotPasswordController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    forgotPasswordController = Get.put(ForgotPasswordController());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BackgroundContainer(
-          child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GetBuilder<ForgotPasswordController>(
+      builder: (controller) {
+        return Scaffold(
+          body: Stack(
             children: [
-              heightSpace(35),
-              Center(
-                child: Image.asset(
-                  'assets/images/app_logo.png',
-                  width: 94,
-                  height: 80,
-                ),
-              ),
-              heightSpace(20),
-              const Text(
-                'Forgot Your Password?',
-                style: CommonTextStyle.semiBold30w600,
-              ),
-              const Text(
-                "No worries! Enter your registered email address, and we’ll send you instructions to reset your password.",
-                style: CommonTextStyle.regular14w400,
-              ),
-              heightSpace(60),
-              centerImagePlaceHolder(),
-              heightSpace(50),
-              TextFormFieldWidget(
-                controller: signInScreenController.emailController,
-                focusNode: signInScreenController.emailFocusNode,
-                prefixIcon: SvgPicture.asset(
-                  "assets/icons/massage_icon.svg",
-                  height: 24,
-                  width: 24,
-                  fit: BoxFit.fill,
-                ),
-                hint: StringConstants.emailAddress,
-                validator: (value) => signInScreenController.validateEmail(value!),
-                onFieldSubmitted: (p0) {
-                  FocusScope.of(context).requestFocus(signInScreenController.emailFocusNode);
-                },
-                inputFormatters: [
-                  CustomFormatterForSpaceAndEmoji(),
-                ],
-                textInputAction: TextInputAction.next,
-                textInputType: TextInputType.emailAddress,
-              ),
-              heightSpace(30),
-              AppButton(
-                text: "Send Reset Link",
-                textStyle: CommonTextStyle.regular16w500,
-                onPressed: () {
-                  setState(() {});
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  if (_formKey.currentState?.validate() ?? false) {}
-                },
-              ),
-              heightSpace(30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Back to ",
-                    style: CommonTextStyle.regular14w400.copyWith(color: ColorConstants.offGrey),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      // Get.to(const LoginScreen());
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const LoginScreen(),
+              BackgroundContainer(
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        heightSpace(35),
+                        Center(
+                          child: Image.asset(
+                            'assets/images/app_logo.png',
+                            width: 94,
+                            height: 80,
+                          ),
                         ),
-                      );
-                    },
-                    child: Text(
-                      'Login',
-                      style:
-                          CommonTextStyle.regular14w400.copyWith(color: ColorConstants.lightOrange),
-                    ),
-                  )
-                ],
+                        heightSpace(20),
+                        const Text(
+                          'Forgot Your Password?',
+                          style: CommonTextStyle.semiBold30w600,
+                        ),
+                        const Text(
+                          "No worries! Enter your registered email address, and we'll send you instructions to reset your password.",
+                          style: CommonTextStyle.regular14w400,
+                        ),
+                        heightSpace(60),
+                        centerImagePlaceHolder(),
+                        heightSpace(50),
+                        Form(
+                          key: _formKey,
+                          child: TextFormFieldWidget(
+                            controller: forgotPasswordController.emailController,
+                            focusNode: forgotPasswordController.emailFocusNode,
+                            prefixIcon: SvgPicture.asset(
+                              "assets/icons/massage_icon.svg",
+                              height: 24,
+                              width: 24,
+                              fit: BoxFit.fill,
+                            ),
+                            hint: StringConstants.emailAddress,
+                            validator: (value) => forgotPasswordController.validateEmail(value),
+                            autofocus: true,
+                            onFieldSubmitted: (p0) {
+                              FocusScope.of(context)
+                                  .requestFocus(forgotPasswordController.emailFocusNode);
+                            },
+                            inputFormatters: [
+                              CustomFormatterForSpaceAndEmoji(),
+                            ],
+                            textInputAction: TextInputAction.next,
+                            textInputType: TextInputType.emailAddress,
+                          ),
+                        ),
+                        heightSpace(30),
+                        AppButton(
+                          text: "Send Reset Link",
+                          textStyle: CommonTextStyle.regular16w500,
+                          onPressed: controller.isLoading
+                              ? null
+                              : () {
+                                  setState(() {});
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  if (_formKey.currentState?.validate() ?? false) {
+                                    controller.forgotPassword(context);
+                                  }
+                                },
+                        ),
+                        heightSpace(30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Back to ",
+                              style: CommonTextStyle.regular14w400
+                                  .copyWith(color: ColorConstants.offGrey),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Get.back();
+                              },
+                              child: Text(
+                                'Login',
+                                style: CommonTextStyle.regular14w400
+                                    .copyWith(color: ColorConstants.lightOrange),
+                              ),
+                            )
+                          ],
+                        ),
+                        heightSpace(30),
+                      ],
+                    ).marginSymmetric(horizontal: 20),
+                  ),
+                ),
               ),
-              heightSpace(30),
+              if (controller.isLoading)
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF4A00)),
+                    ),
+                  ),
+                ),
             ],
-          ).marginSymmetric(horizontal: 20),
-        ),
-      )),
+          ),
+        );
+      },
     );
   }
 

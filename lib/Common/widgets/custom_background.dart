@@ -21,6 +21,7 @@ class BackgroundContainer extends StatelessWidget {
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarDividerColor: Colors.transparent,
       ),
       child: Stack(
         fit: StackFit.expand,
