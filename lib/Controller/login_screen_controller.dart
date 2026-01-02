@@ -14,8 +14,7 @@ import '../View/setProfileModule/select_gender_screen.dart';
 class LoginScreenController extends GetxController {
   final ApiController _apiController = Get.find<ApiController>();
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Use explicit clientId - make sure this matches Firebase Console OAuth client
-    clientId: '253320762898-jpssr4ina2b1oe3rl6ih62ge6aofnvop.apps.googleusercontent.com',
+    scopes: ['email', 'profile', 'openid'],
   );
 
   final FocusNode emailFocusNode = FocusNode();
@@ -93,7 +92,7 @@ class LoginScreenController extends GetxController {
             // Check profile completion and navigate accordingly
             final responseBody = response.body as Map<String, dynamic>;
             final userData = responseBody['user'] as Map<String, dynamic>?;
-            
+
             if (userData != null) {
               // Check if profile is complete
               final isProfileComplete = userData['isProfileComplete'] as bool? ?? false;
@@ -192,7 +191,6 @@ class LoginScreenController extends GetxController {
     update();
 
     try {
-      // Sign in with Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -202,18 +200,32 @@ class LoginScreenController extends GetxController {
         return;
       }
 
-      // Get authentication details
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      String? idToken = googleAuth.idToken;
 
-      if (googleAuth.idToken == null) {
+      if (idToken == null) {
+        try {
+          await _googleSignIn.signOut();
+          final GoogleSignInAccount? refreshedUser = await _googleSignIn.signIn();
+          if (refreshedUser != null) {
+            final GoogleSignInAuthentication refreshedAuth = await refreshedUser.authentication;
+            idToken = refreshedAuth.idToken;
+          }
+        } catch (e) {
+        }
+      }
+
+      if (idToken == null) {
         isLoading = false;
         update();
-        showSnackBar(context, 'Failed to get Google authentication token.',
-            isErrorMessageDisplay: true);
+        showSnackBar(
+          context,
+          'Failed to get Google authentication token. Please ensure OAuth client is configured in Firebase Console.',
+          isErrorMessageDisplay: true,
+        );
         return;
       }
 
-      // Extract first and last name from display name
       String firstName = '';
       String lastName = '';
       if (googleUser.displayName != null && googleUser.displayName!.isNotEmpty) {
@@ -222,15 +234,13 @@ class LoginScreenController extends GetxController {
         lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
       }
 
-      // Prepare API request body
       final body = {
         'provider': 'google',
-        'idToken': googleAuth.idToken,
+        'idToken': idToken,
         'firstName': firstName,
         'lastName': lastName,
       };
 
-      // Call social login API
       final response = await _apiController.socialLogin(body);
 
       isLoading = false;
@@ -246,9 +256,9 @@ class LoginScreenController extends GetxController {
         final loginResponse = SignupResponse.fromJson(response.body as Map<String, dynamic>);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // Success response
+
           if (loginResponse.isSuccess) {
-            // Save tokens to local storage
+
             if (loginResponse.accessToken != null && loginResponse.refreshToken != null) {
               await StorageService.saveTokens(
                 loginResponse.accessToken!,
@@ -256,39 +266,38 @@ class LoginScreenController extends GetxController {
               );
             }
 
-            // Check profile completion and navigate accordingly
             final responseBody = response.body as Map<String, dynamic>;
             final userData = responseBody['user'] as Map<String, dynamic>?;
-            
+
             if (userData != null) {
-              // Check if profile is complete
+
               final isProfileComplete = userData['isProfileComplete'] as bool? ?? false;
               if (isProfileComplete) {
                 Get.offAll(() => const DashboardScreen());
               } else {
-                // Determine next screen based on incomplete fields
+
                 final nextScreen = ProfileNavigationHelper.determineNextScreen(userData);
                 Get.offAll(() => nextScreen);
               }
             } else {
-              // Fallback to first screen if user data is not available
+
               Get.offAll(() => const SelectGenderScreen());
             }
           } else {
-            // Handle error message in success status code
+
             final errorMessage =
                 loginResponse.message ?? loginResponse.error ?? 'Something went wrong';
             showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
           }
         } else {
-          // Error response (401, 400, etc.)
+
           final errorMessage = loginResponse.message ??
               loginResponse.error ??
               _apiController.getErrorMessage(response);
           showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
         }
       } catch (e) {
-        // If parsing fails, use default error message
+
         final errorMessage = _apiController.getErrorMessage(response);
         showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
       }
@@ -296,14 +305,34 @@ class LoginScreenController extends GetxController {
       isLoading = false;
       update();
 
-      String errorMessage = 'Network error. Please check your connection and try again.';
-      if (e.toString().contains('sign_in_failed') || e.toString().contains('network')) {
-        errorMessage = 'Failed to sign in with Google. Please try again.';
-      }
+      String errorMessage = 'Failed to sign in with Google. Please try again.';
 
+
+      if (e.toString().contains('sign_in_failed')) {
+        if (e.toString().contains('ApiException: 10')) {
+          errorMessage =
+              'Google Sign-In configuration error. Please ensure:\n'
+              '1. SHA-1 fingerprint is added in Firebase Console\n'
+              '2. google-services.json is up to date\n'
+              '3. OAuth client is configured correctly';
+        } else if (e.toString().contains('ApiException: 12500')) {
+          // ApiException: 12500 = SIGN_IN_CANCELLED
+          errorMessage = 'Sign-in was cancelled.';
+        } else if (e.toString().contains('ApiException: 7')) {
+          // ApiException: 7 = NETWORK_ERROR
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else {
+          errorMessage = 'Failed to sign in with Google: ${e.toString()}';
+        }
+      } else if (e.toString().contains('network') || e.toString().contains('Network')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else {
+        // Log full error for debugging
+        print('Google Sign-In Error: $e');
+        errorMessage = 'An error occurred during sign-in. Please try again.';
+      }
+      
       showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
     }
   }
-
-
 }

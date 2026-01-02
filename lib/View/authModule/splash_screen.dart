@@ -8,6 +8,8 @@ import 'package:lava_dating_app/View/homeModule/dashboard_screen.dart';
 import 'package:lava_dating_app/View/setProfileModule/select_gender_screen.dart';
 import 'package:lava_dating_app/View/welcomeModule/welcome_screen.dart';
 
+import '../../Common/constant/color_constants.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,18 +17,51 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   final ApiController _apiController = Get.find<ApiController>();
+  late AnimationController _progressController;
+  double _progress = 0.0;
+  bool _isLoadingComplete = false;
 
   @override
   void initState() {
     super.initState();
+    _progressController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _startProgressAnimation();
     _navigateToNextScreen();
   }
 
-  void _navigateToNextScreen() async {
-    await Future.delayed(const Duration(seconds: 3));
+  void _startProgressAnimation() {
+    _progressController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _progress = _progressController.value;
+        });
+      }
+    });
+    _progressController.forward();
+  }
 
+  void _navigateToNextScreen() async {
+    // Wait for progress bar animation to complete (3 seconds)
+    await _progressController.forward().orCancel;
+
+    // Ensure progress is at 100%
+    if (mounted && _progress < 1.0) {
+      setState(() {
+        _progress = 1.0;
+      });
+    }
+
+    // Small delay to show 100% progress
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    if (!mounted) return;
+
+    // Now navigate to next screen
     if (StorageService.isLoggedIn()) {
       // Call API to get current user data
       await _checkProfileCompletionAndNavigate();
@@ -76,7 +111,6 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,8 +128,62 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 200,
             ),
           ),
+          // Progress bar at the bottom
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildProgressBar(),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildProgressBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 60),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Progress bar container
+          Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: Stack(
+                children: [
+                  // Background (white/unfilled portion)
+                  Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                  ),
+                  // Progress fill (orange portion)
+                  FractionallySizedBox(
+                    widthFactor: _progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ColorConstants.lightOrange,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _progressController.dispose();
+    super.dispose();
   }
 }

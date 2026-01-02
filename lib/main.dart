@@ -5,12 +5,15 @@ import 'package:lava_dating_app/View/authModule/splash_screen.dart';
 import 'package:lava_dating_app/View/homeModule/dashboard_screen.dart';
 import 'Api/api_controller.dart';
 import 'Common/services/storage_service.dart';
+import 'Common/services/connectivity_service.dart';
 import 'Common/widgets/back_button_handler_widget.dart';
 import 'Controller/login_screen_controller.dart';
 import 'Controller/setProfileControllers/profile_module_controller.dart';
 import 'Controller/signup_screen_controller.dart';
 import 'View/authModule/forgot_pass_screen.dart';
 import 'View/authModule/login_screen.dart';
+import 'View/example.dart';
+import 'View/example_screen.dart';
 import 'View/homeModule/congratulations_screen.dart';
 import 'View/setProfileModule/interests_and_hobbies.dart';
 import 'View/setProfileModule/kids_screen.dart';
@@ -50,6 +53,8 @@ void main() async {
   Get.put(LoginScreenController());
   // Get.put(SignupScreenController());
   Get.put(ProfileModuleController());
+  // Initialize connectivity service for global internet monitoring
+  Get.put(ConnectivityService(), permanent: true);
 }
 
 class MyApp extends StatelessWidget {

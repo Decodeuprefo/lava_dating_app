@@ -60,16 +60,31 @@ class _IntroVideoViewScreenState extends State<IntroVideoViewScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    heightSpace(13),
-                    InkWell(
-                      onTap: Get.back,
-                      child: SvgPicture.asset(
-                        "assets/icons/back_arrow.svg",
-                        height: 30,
-                        width: 30,
-                        fit: BoxFit.fill,
+                      heightSpace(13),
+                      // Hide back button if this is the root/first screen
+                      Builder(
+                        builder: (context) {
+                          final route = ModalRoute.of(context);
+                          final isFirstRoute = route?.isFirst ?? false;
+                          final canPop = Navigator.of(context).canPop();
+                          
+                          // Show back button only if:
+                          // 1. This is NOT the first route in navigation stack
+                          // 2. AND Navigator can pop (has previous route)
+                          if (!isFirstRoute && canPop) {
+                            return InkWell(
+                              onTap: Get.back,
+                              child: SvgPicture.asset(
+                                "assets/icons/back_arrow.svg",
+                                height: 30,
+                                width: 30,
+                                fit: BoxFit.fill,
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
-                    ),
                     heightSpace(90),
                     const CommonTextWidget(
                       text: 'VIBE CHECK! 🤙🏼',

@@ -23,6 +23,7 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^2.1.1
   google_sign_in: ^6.2.1
+  connectivity_plus: ^6.1.0
   #  video_player: ^2.10.0
   chewie: ^1.7.1
   shimmer: ^3.0.0
