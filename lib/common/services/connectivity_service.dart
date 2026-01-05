@@ -49,9 +49,11 @@ class ConnectivityService extends GetxController {
     final wasConnected = isConnected.value;
     isConnected.value = hasConnection;
 
-    // Show dialog when connection is lost
+    // Only show dialog if Get.context is available (app is fully initialized)
     if (!hasConnection && wasConnected && !isDialogShowing.value) {
-      _showNoInternetDialog();
+      if (Get.context != null && Get.context!.mounted) {
+        _showNoInternetDialog();
+      }
     }
 
     // Hide dialog when connection is restored
@@ -62,6 +64,11 @@ class ConnectivityService extends GetxController {
 
   void _showNoInternetDialog() {
     if (isDialogShowing.value) return;
+    
+    // Check if context is available before showing dialog
+    if (Get.context == null || !Get.context!.mounted) {
+      return;
+    }
 
     isDialogShowing.value = true;
 

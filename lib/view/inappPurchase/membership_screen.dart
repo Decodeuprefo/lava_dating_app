@@ -646,7 +646,7 @@ class MembershipScreen extends StatelessWidget {
 
   Widget _buildViewAddOnsButton() {
     return AppButton(
-      text: 'View Add-On Options',
+      text: 'view Add-On Options',
       onPressed: () {
         Get.to(() => const SelectPlansScreen());
       },

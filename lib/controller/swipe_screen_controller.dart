@@ -57,7 +57,7 @@ class SwipeScreenController extends GetxController {
   // Action image state (for showing images on swipe actions)
   final RxString currentActionImage = ''.obs; // 'like', 'dislike', 'superlike', or ''
   final RxBool showActionImage = false.obs;
-  
+
   // Card swipe animation state
   final RxBool isCardSwiping = false.obs;
 
@@ -245,13 +245,13 @@ class SwipeScreenController extends GetxController {
     Future.delayed(const Duration(milliseconds: 600), () {
       // Move to next card after image is visible
       _moveToNext();
-      
+
       // Check if profiles array is now empty after moving (last profile was swiped)
       // This ensures empty state is shown immediately
       if (profiles.isEmpty || currentIndex.value >= profiles.length) {
         update(); // Force UI update to show empty state
       }
-      
+
       // Hide image after card swipe completes
       Future.delayed(const Duration(milliseconds: 300), () {
         showActionImage.value = false;
@@ -403,13 +403,13 @@ class SwipeScreenController extends GetxController {
     Future.delayed(const Duration(milliseconds: 600), () {
       // Move to next card after image is visible
       _moveToNext();
-      
+
       // Check if profiles array is now empty after moving (last profile was swiped)
       // This ensures empty state is shown immediately
       if (profiles.isEmpty || currentIndex.value >= profiles.length) {
         update(); // Force UI update to show empty state
       }
-      
+
       // Hide image after card swipe completes
       Future.delayed(const Duration(milliseconds: 300), () {
         showActionImage.value = false;
@@ -474,13 +474,13 @@ class SwipeScreenController extends GetxController {
     Future.delayed(const Duration(milliseconds: 600), () {
       // Move to next card after image is visible
       _moveToNext();
-      
+
       // Check if profiles array is now empty after moving (last profile was swiped)
       // This ensures empty state is shown immediately
       if (profiles.isEmpty || currentIndex.value >= profiles.length) {
         update(); // Force UI update to show empty state
       }
-      
+
       // Hide image after card swipe completes
       Future.delayed(const Duration(milliseconds: 300), () {
         showActionImage.value = false;
@@ -577,7 +577,7 @@ class SwipeScreenController extends GetxController {
       if (currentIndex.value >= profiles.length - 3 && hasMore && !isLoading) {
         loadMoreProfiles();
       }
-      
+
       // Reset swiping state after animation
       Future.delayed(const Duration(milliseconds: 300), () {
         isCardSwiping.value = false;

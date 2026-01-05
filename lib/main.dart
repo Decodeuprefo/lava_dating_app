@@ -30,31 +30,67 @@ import 'View/setProfileModule/select_relationship_type_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await StorageService.init();
+  try {
+    await StorageService.init();
+  } catch (e) {
+    print('StorageService init error: $e');
+  }
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  try {
+    Get.put(ApiController(), permanent: true);
+  } catch (e) {
+    print('ApiController init error: $e');
+  }
 
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.light,
-      systemNavigationBarDividerColor: Colors.transparent,
-    ),
-  );
+  try {
+    Get.put(LoginScreenController());
+  } catch (e) {
+    print('LoginScreenController init error: $e');
+  }
+
+  try {
+    Get.put(ProfileModuleController());
+  } catch (e) {
+    print('ProfileModuleController init error: $e');
+  }
+
+  try {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  } catch (e) {
+    print('SystemChrome orientation error: $e');
+  }
+
+  try {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarDividerColor: Colors.transparent,
+      ),
+    );
+  } catch (e) {
+    print('SystemChrome overlay error: $e');
+  }
 
   runApp(const MyApp());
-  Get.put(ApiController(), permanent: true);
-  Get.put(LoginScreenController());
-  // Get.put(SignupScreenController());
-  Get.put(ProfileModuleController());
-  // Initialize connectivity service for global internet monitoring
-  Get.put(ConnectivityService(), permanent: true);
+  
+  // Initialize ConnectivityService after app is running
+  Future.delayed(const Duration(milliseconds: 1000), () {
+    try {
+      if (Get.isRegistered<ConnectivityService>()) {
+        return;
+      }
+      Get.put(ConnectivityService(), permanent: true);
+    } catch (e) {
+      print('ConnectivityService init error: $e');
+    }
+  });
 }
 
 class MyApp extends StatelessWidget {

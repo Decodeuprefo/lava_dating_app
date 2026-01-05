@@ -23,7 +23,7 @@ class SeeMapLocationController extends GetxController {
         final selectController = Get.find<SelectIslandLocationController>();
         // This won't work as expected, so we'll rely on arguments
       } catch (e) {
-        // Controller not found, will use null
+        // controller not found, will use null
       }
     }
     _checkLocationPermission();

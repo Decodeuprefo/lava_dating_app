@@ -61,7 +61,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   _buildFlowersSection(),
                   heightSpace(20),
                   Center(child: _buildUpgradeButton()),
-                  heightSpace(30),
+                  heightSpace(100),
                 ],
               ),
             ),

@@ -26,6 +26,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
   bool _isPermissionGranted = false;
   bool _isCheckingPermission = false;
   bool _isLoading = false;
+  bool _isLocationDataReady = false;
   double? _latitude;
   double? _longitude;
   String? _city;
@@ -78,28 +79,38 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
     try {
       setState(() {
         _isLoading = true;
+        _isLocationDataReady = false;
       });
 
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
           _isLoading = false;
+          _isLocationDataReady = false;
         });
         showSnackBar(context, 'Location services are disabled. Please enable them.',
             isErrorMessageDisplay: true);
         return;
       }
 
-      // Get current position
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
       );
+
+      if (position.latitude == null || position.longitude == null) {
+        setState(() {
+          _isLoading = false;
+          _isLocationDataReady = false;
+        });
+        showSnackBar(context, 'Failed to get location coordinates. Please try again.',
+            isErrorMessageDisplay: true);
+        return;
+      }
 
       _latitude = position.latitude;
       _longitude = position.longitude;
 
-      // Get city and country from coordinates using geocoding
       try {
         List<Placemark> placemarks = await placemarkFromCoordinates(
           position.latitude,
@@ -113,26 +124,46 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
         }
       } catch (e) {
         print('Error getting address from coordinates: $e');
-        // If geocoding fails, we can still proceed with coordinates only
       }
 
-      setState(() {
-        _isLoading = false;
-      });
+      if (_latitude != null && _longitude != null) {
+        setState(() {
+          _isLoading = false;
+          _isLocationDataReady = true;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _isLocationDataReady = false;
+        });
+        showSnackBar(context, 'Location data incomplete. Please try again.',
+            isErrorMessageDisplay: true);
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _isLocationDataReady = false;
       });
       print('Error getting current location: $e');
-      showSnackBar(context, 'Failed to get location. Please try again.',
-          isErrorMessageDisplay: true);
+      
+      String errorMessage = 'Failed to get location. Please try again.';
+      if (e.toString().contains('timeout') || e.toString().contains('TIMEOUT')) {
+        errorMessage = 'Location request timed out. Please check your GPS and try again.';
+      } else if (e.toString().contains('permission')) {
+        errorMessage = 'Location permission denied. Please grant permission and try again.';
+      }
+      
+      showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
     }
   }
 
   Future<void> _updateLocation() async {
-    if (_latitude == null || _longitude == null) {
-      showSnackBar(context, 'Location data not available. Please try again.',
+    if (!_isLocationDataReady || _latitude == null || _longitude == null) {
+      showSnackBar(context, 'Location data not available. Please wait for location to load.',
           isErrorMessageDisplay: true);
+      if (_isPermissionGranted && !_isLoading) {
+        await _getCurrentLocation();
+      }
       return;
     }
 
@@ -155,7 +186,6 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Mark profile as complete
         await StorageService.setProfileComplete();
         Get.offAll(() => const DashboardScreen(), transition: Transition.noTransition);
       } else {
@@ -283,11 +313,16 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                 child: AppButton(
-                  text: _isPermissionGranted ? "Continue" : "Enable Continue",
-                  textStyle: CommonTextStyle.regular16w500,
-                  onPressed: _isLoading || _isCheckingPermission
-                      ? null
+                  text: _isPermissionGranted && _isLocationDataReady
+                      ? "Continue"
                       : _isPermissionGranted
+                          ? "Getting Location..."
+                          : "Enable Location",
+                  textStyle: CommonTextStyle.regular16w500,
+                  onPressed: (_isLoading || _isCheckingPermission || 
+                             (_isPermissionGranted && !_isLocationDataReady))
+                      ? null
+                      : _isPermissionGranted && _isLocationDataReady
                           ? () {
                               _updateLocation();
                             }

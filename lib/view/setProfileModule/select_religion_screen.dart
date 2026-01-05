@@ -75,7 +75,7 @@ class _ReligionScreenState extends State<ReligionScreen> {
                               final route = ModalRoute.of(context);
                               final isFirstRoute = route?.isFirst ?? false;
                               final canPop = Navigator.of(context).canPop();
-                              
+
                               // Show back button only if:
                               // 1. This is NOT the first route in navigation stack
                               // 2. AND Navigator can pop (has previous route)

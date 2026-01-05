@@ -14,6 +14,8 @@ import '../View/setProfileModule/select_gender_screen.dart';
 class LoginScreenController extends GetxController {
   final ApiController _apiController = Get.find<ApiController>();
   final GoogleSignIn _googleSignIn = GoogleSignIn(
+    // serverClientId: 'YOUR_WEB_CLIENT_ID_HERE.apps.googleusercontent.com',
+    serverClientId: '253320762898-jpssr4ina2b1oe3rl6ih62ge6aofnvop.apps.googleusercontent.com',
     scopes: ['email', 'profile', 'openid'],
   );
 
@@ -183,7 +185,7 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// Google Social Login - Common method for both Login and Signup screens
+  /// Google Social Login - common method for both Login and Signup screens
   Future<void> googleLogin(BuildContext context) async {
     if (isLoading) return;
 
@@ -211,8 +213,7 @@ class LoginScreenController extends GetxController {
             final GoogleSignInAuthentication refreshedAuth = await refreshedUser.authentication;
             idToken = refreshedAuth.idToken;
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
 
       if (idToken == null) {
@@ -256,9 +257,7 @@ class LoginScreenController extends GetxController {
         final loginResponse = SignupResponse.fromJson(response.body as Map<String, dynamic>);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-
           if (loginResponse.isSuccess) {
-
             if (loginResponse.accessToken != null && loginResponse.refreshToken != null) {
               await StorageService.saveTokens(
                 loginResponse.accessToken!,
@@ -270,34 +269,28 @@ class LoginScreenController extends GetxController {
             final userData = responseBody['user'] as Map<String, dynamic>?;
 
             if (userData != null) {
-
               final isProfileComplete = userData['isProfileComplete'] as bool? ?? false;
               if (isProfileComplete) {
                 Get.offAll(() => const DashboardScreen());
               } else {
-
                 final nextScreen = ProfileNavigationHelper.determineNextScreen(userData);
                 Get.offAll(() => nextScreen);
               }
             } else {
-
               Get.offAll(() => const SelectGenderScreen());
             }
           } else {
-
             final errorMessage =
                 loginResponse.message ?? loginResponse.error ?? 'Something went wrong';
             showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
           }
         } else {
-
           final errorMessage = loginResponse.message ??
               loginResponse.error ??
               _apiController.getErrorMessage(response);
           showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
         }
       } catch (e) {
-
         final errorMessage = _apiController.getErrorMessage(response);
         showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
       }
@@ -307,11 +300,9 @@ class LoginScreenController extends GetxController {
 
       String errorMessage = 'Failed to sign in with Google. Please try again.';
 
-
       if (e.toString().contains('sign_in_failed')) {
         if (e.toString().contains('ApiException: 10')) {
-          errorMessage =
-              'Google Sign-In configuration error. Please ensure:\n'
+          errorMessage = 'Google Sign-In configuration error. Please ensure:\n'
               '1. SHA-1 fingerprint is added in Firebase Console\n'
               '2. google-services.json is up to date\n'
               '3. OAuth client is configured correctly';
@@ -331,7 +322,7 @@ class LoginScreenController extends GetxController {
         print('Google Sign-In Error: $e');
         errorMessage = 'An error occurred during sign-in. Please try again.';
       }
-      
+
       showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
     }
   }

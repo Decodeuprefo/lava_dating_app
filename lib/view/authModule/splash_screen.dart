@@ -18,10 +18,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  final ApiController _apiController = Get.find<ApiController>();
+  ApiController? _apiController;
   late AnimationController _progressController;
   double _progress = 0.0;
   bool _isLoadingComplete = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _apiController ??= Get.find<ApiController>();
+  }
 
   @override
   void initState() {
@@ -74,7 +80,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   Future<void> _checkProfileCompletionAndNavigate() async {
     try {
-      final response = await _apiController.getCurrentUser();
+      if (_apiController == null) {
+        if (Get.isRegistered<ApiController>()) {
+          _apiController = Get.find<ApiController>();
+        } else {
+          // If ApiController is not registered, go to login
+          if (mounted) {
+            Get.offAll(() => const LoginScreen());
+          }
+          return;
+        }
+      }
+
+      if (_apiController == null) {
+        if (mounted) {
+          Get.offAll(() => const LoginScreen());
+        }
+        return;
+      }
+
+      final response = await _apiController!.getCurrentUser();
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (response.body != null) {

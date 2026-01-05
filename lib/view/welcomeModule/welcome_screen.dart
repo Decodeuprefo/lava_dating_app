@@ -109,6 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   },
                 ),
               ),
+              heightSpace(30),
               _buildButton(),
               heightSpace(20),
               _buildStepper(),

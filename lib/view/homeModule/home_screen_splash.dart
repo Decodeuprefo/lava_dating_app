@@ -29,6 +29,7 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
   final RxInt totalSwipes = 30.obs;
   final RxBool isUnlimitedSwipes = true.obs;
   final controller = Get.put(HomeScreenController());
+  AppLifecycleState? _lastLifecycleState;
 
   @override
   void initState() {
@@ -45,13 +46,21 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    // Only set killed flag when app goes to paused state (actually goes to background)
+    // Not on inactive state (which happens when status bar is pulled down)
+    if (state == AppLifecycleState.paused) {
       // App is going to background - set killed flag
       StorageService.setAppKilledFlag();
-    } else if (state == AppLifecycleState.resumed) {
-      // App resumed - check if it was killed
+    } 
+    // Only check killed flag when resuming from paused state (not from inactive)
+    // This ensures dialog only shows when app was actually killed/reopened, not on status bar pull
+    else if (state == AppLifecycleState.resumed && _lastLifecycleState == AppLifecycleState.paused) {
+      // App resumed from background - check if it was killed
       _checkAndShowSafetyDialog();
     }
+    
+    // Update last state for next comparison
+    _lastLifecycleState = state;
   }
 
   Future<void> _checkAndShowSafetyDialog() async {
@@ -515,7 +524,7 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
             // Get user's first name for second line
             final secondLineText = suggestion.user?.firstName ?? "";
 
-            // Show "View Profile" based on canSeeDetails
+            // Show "view Profile" based on canSeeDetails
             final showViewProfile = suggestion.canSeeDetails ?? false;
 
             return Padding(

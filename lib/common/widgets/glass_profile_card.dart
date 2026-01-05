@@ -100,7 +100,7 @@ class GlassProfileCard extends StatelessWidget {
             if (showViewProfile) ...[
               heightSpace(4),
               Text(
-                "View Profile",
+                "view Profile",
                 style: CommonTextStyle.regular12w400.copyWith(
                     color: ColorConstants.lightOrange,
                     decoration: TextDecoration.underline,

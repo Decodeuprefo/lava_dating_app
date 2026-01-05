@@ -84,7 +84,7 @@ class _SwipeScreenState extends State<SwipeScreen> {
                                   ),
                                   heightSpace(25),
                                   _buildProgressBar(),
-                                  heightSpace(60),
+                                  heightSpace(100),
                                 ],
                               ),
                             )),
