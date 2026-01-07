@@ -32,6 +32,8 @@ class ApiController extends GetConnect {
 
   Future<Response> socialLogin(Map<String, dynamic> body) => post('/auth/social', body);
 
+  Future<Response> logout() => post('/auth/logout', {});
+
   Future<Response> updateUserProfile(Map<String, dynamic> body) {
     return put('/users/profile', body);
   }

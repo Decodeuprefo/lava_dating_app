@@ -63,7 +63,12 @@ class CommonTextWidget extends StatelessWidget {
   }
 }
 
-void showSnackBar(BuildContext context, String? message, {bool isErrorMessageDisplay = false}) {
+void showSnackBar(
+  BuildContext context,
+  String? message, {
+  bool isErrorMessageDisplay = false,
+  String? iconPath,
+}) {
   if (message == null ||
       (!isErrorMessageDisplay && message.toLowerCase().contains('something went'))) {
     return;
@@ -73,6 +78,10 @@ void showSnackBar(BuildContext context, String? message, {bool isErrorMessageDis
 
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
+
+  // Default icon path, can be overridden
+  final String defaultIconPath = iconPath ?? "assets/icons/alert_icon.png";
+
   overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
       top: MediaQuery.of(context).padding.top + 15,
@@ -81,27 +90,36 @@ void showSnackBar(BuildContext context, String? message, {bool isErrorMessageDis
       child: Material(
         color: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 20).copyWith(right: 15),
           decoration: BoxDecoration(
-            color: ColorConstants.lightOrange,
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Alert icon on the left
+              Image.asset(
+                defaultIconPath,
+                width: 24,
+                height: 24,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback to default icon if custom icon fails to load
+                  return Image.asset(
+                    "assets/icons/alert_icon.png",
+                    width: 24,
+                    height: 24,
+                  );
+                },
+              ),
+              widthSpace(12),
               Expanded(
                 child: Text(
                   message,
-                  style: CommonTextStyle.regular16w500,
+                  style: CommonTextStyle.regular16w500.copyWith(
+                    color: ColorConstants.lightOrange,
+                  ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                onPressed: () {
-                  overlayEntry.remove();
-                },
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -113,7 +131,7 @@ void showSnackBar(BuildContext context, String? message, {bool isErrorMessageDis
   overlay.insert(overlayEntry);
 
   // Auto remove after duration
-  Future.delayed(const Duration(milliseconds: 2500), () {
+  Future.delayed(const Duration(seconds: 3), () {
     try {
       overlayEntry.remove();
     } catch (e) {
@@ -121,7 +139,6 @@ void showSnackBar(BuildContext context, String? message, {bool isErrorMessageDis
     }
   });
 }
-
 
 class FullWidthRangeSliderTrackShape extends RoundedRectRangeSliderTrackShape {
   @override
@@ -200,7 +217,7 @@ class BorderedRangeSliderThumbShape extends RangeSliderThumbShape {
 
     // Draw white thumb circle
     canvas.drawCircle(center, enabledThumbRadius, thumbPaint);
-    
+
     // Draw light orange border circle
     canvas.drawCircle(center, enabledThumbRadius, borderPaint);
   }
@@ -222,19 +239,19 @@ class BorderedSliderThumbShape extends SliderComponentShape {
 
   @override
   void paint(
-      PaintingContext context,
-      Offset center, {
-        required Animation<double> activationAnimation,
-        required Animation<double> enableAnimation,
-        required bool isDiscrete,
-        required TextPainter labelPainter,
-        required RenderBox parentBox,
-        required SliderThemeData sliderTheme,
-        required TextDirection textDirection,
-        required double value,
-        required double textScaleFactor,
-        required Size sizeWithOverflow,
-      }) {
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
     final Canvas canvas = context.canvas;
 
     // Draw border (light orange)
@@ -250,7 +267,7 @@ class BorderedSliderThumbShape extends SliderComponentShape {
 
     // Draw white thumb circle
     canvas.drawCircle(center, enabledThumbRadius, thumbPaint);
-    
+
     // Draw light orange border circle
     canvas.drawCircle(center, enabledThumbRadius, borderPaint);
   }
@@ -270,19 +287,19 @@ class CustomSliderThumb extends SliderComponentShape {
 
   @override
   void paint(
-      PaintingContext context,
-      Offset center, {
-        required Animation<double> activationAnimation,
-        required Animation<double> enableAnimation,
-        required bool isDiscrete,
-        required TextPainter labelPainter,
-        required RenderBox parentBox,
-        required SliderThemeData sliderTheme,
-        required TextDirection textDirection,
-        required double value,
-        required double textScaleFactor,
-        required Size sizeWithOverflow,
-      }) {
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
     final Canvas canvas = context.canvas;
 
     final Paint thumbPaint = Paint()

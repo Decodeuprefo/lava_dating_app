@@ -12,8 +12,8 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white12,
-      highlightColor: Colors.grey[700]!,
+      baseColor: Colors.white.withOpacity(0.25),
+      highlightColor: Colors.grey[300]!,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,7 +30,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -40,7 +40,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                     width: 200,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -56,7 +56,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                         width: 80,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.white.withOpacity(0.45),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -79,7 +79,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Continue",
+                "",
                 style: CommonTextStyle.regular16w500,
               ),
             ),
@@ -139,7 +139,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                   height: 158,
                   width: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Column(
@@ -149,7 +149,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -162,7 +162,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                   height: 158,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Column(
@@ -172,7 +172,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -221,7 +221,7 @@ class SelectHeightScreenShimmerWidget extends StatelessWidget {
                 topRight: Radius.circular(10),
                 bottomRight: Radius.circular(10),
               ),
-              color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withOpacity(0.3),
             ),
             child: Container(
               width: 20,

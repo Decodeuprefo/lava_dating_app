@@ -12,8 +12,8 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white12,
-      highlightColor: Colors.grey[700]!,
+      baseColor: Colors.white.withOpacity(0.25),
+      highlightColor: Colors.grey[300]!,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -28,7 +28,7 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
                   width: 250,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -38,7 +38,7 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
                   width: double.infinity,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -47,7 +47,7 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
                   width: 280,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -73,7 +73,7 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Continue",
+                "",
                 style: CommonTextStyle.regular16w500,
               ),
             ),
@@ -93,7 +93,7 @@ class SelectGenderScreenShimmerWidget extends StatelessWidget {
         height: 14,
         width: 150,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.5),
           borderRadius: BorderRadius.circular(4),
         ),
       ),

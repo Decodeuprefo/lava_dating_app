@@ -7,11 +7,15 @@ class HomeScreenController extends GetxController {
 
   bool isLoading = false;
   HomeScreenModel? homeData;
+  int? remainingSwipesFromApi;
+  int? totalDailySwipesFromApi;
+  bool? isUnlimitedSwipesFromApi;
 
   @override
   void onInit() {
     super.onInit();
     fetchHomeScreenData();
+    fetchRemainingSwipes();
   }
 
   Future<void> fetchHomeScreenData() async {
@@ -40,6 +44,23 @@ class HomeScreenController extends GetxController {
       isLoading = false;
       update();
       print('Network error fetching home screen data: $e');
+    }
+  }
+
+  Future<void> fetchRemainingSwipes() async {
+    try {
+      final response = await _apiController.getRemainingSwipes();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body != null) {
+          final body = response.body as Map<String, dynamic>;
+          remainingSwipesFromApi = body['remainingSwipes'] as int?;
+          totalDailySwipesFromApi = body['totalDailySwipes'] as int?;
+          isUnlimitedSwipesFromApi = body['isUnlimitedSwipes'] as bool?;
+          update();
+        }
+      }
+    } catch (e) {
+      print('Error fetching remaining swipes: $e');
     }
   }
 }

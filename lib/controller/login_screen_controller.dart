@@ -46,10 +46,26 @@ class LoginScreenController extends GetxController {
 
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return StringConstants.emptyPasswordValidation;
-    } else {
-      return null;
+      return StringConstants.passwordRequired;
     }
+
+    if (value.length < 8) {
+      return StringConstants.passwordMinLength;
+    }
+
+    if (!value.contains(RegExp(r'[a-z]'))) {
+      return StringConstants.passwordMissingLowercase;
+    }
+
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return StringConstants.passwordMissingUppercase;
+    }
+
+    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>_+\-=\[\]\\;\/`~]'))) {
+      return StringConstants.passwordMissingSpecialChar;
+    }
+
+    return null;
   }
 
   /// Login API call

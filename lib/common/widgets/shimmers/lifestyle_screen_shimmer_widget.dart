@@ -12,8 +12,8 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white12,
-      highlightColor: Colors.grey[700]!,
+      baseColor: Colors.white.withOpacity(0.25),
+      highlightColor: Colors.grey[300]!,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,7 +30,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -40,7 +40,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                     width: 320,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -50,7 +50,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                     width: 280,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withOpacity(0.45),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -62,7 +62,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                         width: 27,
                         height: 27,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -71,7 +71,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                         width: 120,
                         height: 18,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -95,7 +95,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                         width: 27,
                         height: 27,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -104,7 +104,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
                         width: 120,
                         height: 18,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -136,7 +136,7 @@ class LifestyleScreenShimmerWidget extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Continue",
+                "",
                 style: CommonTextStyle.regular16w500,
               ),
             ),

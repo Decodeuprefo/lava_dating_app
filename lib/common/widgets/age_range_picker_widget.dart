@@ -117,9 +117,8 @@ class _AgeRangePickerWidgetState extends State<AgeRangePickerWidget> {
                               controller: _minController,
                               onSelectedItemChanged: (index) {
                                 final newMinAge = ageList[index];
-                                if (newMinAge <= widget.maxAge) {
-                                  widget.onMinAgeChanged(newMinAge);
-                                }
+                                // Always call callback to allow parent to handle validation and show snackbar
+                                widget.onMinAgeChanged(newMinAge);
                               },
                               childDelegate: ListWheelChildBuilderDelegate(
                                 builder: (context, index) {
@@ -164,9 +163,8 @@ class _AgeRangePickerWidgetState extends State<AgeRangePickerWidget> {
                               controller: _maxController,
                               onSelectedItemChanged: (index) {
                                 final newMaxAge = ageList[index];
-                                if (newMaxAge >= widget.minAge) {
-                                  widget.onMaxAgeChanged(newMaxAge);
-                                }
+                                // Always call callback to allow parent to handle validation and show snackbar
+                                widget.onMaxAgeChanged(newMaxAge);
                               },
                               childDelegate: ListWheelChildBuilderDelegate(
                                 builder: (context, index) {

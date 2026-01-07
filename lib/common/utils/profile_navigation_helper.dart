@@ -21,11 +21,7 @@ import 'package:lava_dating_app/View/setProfileModule/select_relationship_type_s
 import 'package:lava_dating_app/View/setProfileModule/select_religion_screen.dart';
 
 class ProfileNavigationHelper {
-  /// Determines the next screen based on user profile data
-  /// Returns DashboardScreen if profile is complete, otherwise returns the first incomplete screen
   static Widget determineNextScreen(Map<String, dynamic> user) {
-    // Check fields in order and return first incomplete screen
-
     // 1. Select Gender
     final gender = user['gender'] as String?;
     if (gender == null || gender.isEmpty) {
@@ -126,19 +122,27 @@ class ProfileNavigationHelper {
     }
 
     // 18. Race Flags
-    final raceFlags = user['raceFlags'] as List<dynamic>?;
-    if (raceFlags == null || raceFlags.isEmpty) {
+    final ethnicity = user['ethnicity'] as List<dynamic>?;
+    if (ethnicity == null || ethnicity.isEmpty) {
       return const RaceFlagsScreen();
     }
 
-    // 19. Location Permission
     final location = user['location'] as Map<String, dynamic>?;
+    print(">>>>>>>>>${location}");
     if (location == null) {
       return const LocationPermissionScreen();
     }
 
     final coordinates = location['coordinates'] as List<dynamic>?;
+    print(">>>>>>>>>${coordinates}");
     if (coordinates == null || coordinates.length < 2) {
+      return const LocationPermissionScreen();
+    }
+
+    final lat = coordinates[0] is num ? coordinates[0].toDouble() : null;
+    final lng = coordinates[1] is num ? coordinates[1].toDouble() : null;
+    print(">>>>>>>>>${lat}${lng}");
+    if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
       return const LocationPermissionScreen();
     }
 

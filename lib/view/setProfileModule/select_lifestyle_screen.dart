@@ -75,7 +75,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                               final route = ModalRoute.of(context);
                               final isFirstRoute = route?.isFirst ?? false;
                               final canPop = Navigator.of(context).canPop();
-                              
+
                               // Show back button only if:
                               // 1. This is NOT the first route in navigation stack
                               // 2. AND Navigator can pop (has previous route)
@@ -142,7 +142,6 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                             ),
                           ),
                           heightSpace(30),
-                          // Do you smoke section
                           Row(
                             children: [
                               Image.asset(
@@ -174,6 +173,81 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                                   isSelected: isSelected,
                                   onTap: () {
                                     profileController.toggleSmoking(option);
+                                    profileController.refreshScreen();
+                                  },
+                                );
+                              }),
+                            ),
+                          ),
+                          heightSpace(30),
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/dumbbell.png",
+                                fit: BoxFit.fill,
+                                height: 27,
+                                width: 27,
+                              ),
+                              widthSpace(10),
+                              const Text(
+                                "Do you workout?",
+                                style: CommonTextStyle.regular18w500,
+                              ),
+                            ],
+                          ),
+                          heightSpace(16),
+                          Obx(
+                            () => Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              alignment: WrapAlignment.start,
+                              children:
+                                  List.generate(profileController.workoutOptions.length, (index) {
+                                final option = profileController.workoutOptions[index];
+                                final isSelected =
+                                    profileController.selectedWorkout.contains(option);
+                                return GlassContainerWidget(
+                                  text: option,
+                                  isSelected: isSelected,
+                                  onTap: () {
+                                    profileController.toggleWorkout(option);
+                                    profileController.refreshScreen();
+                                  },
+                                );
+                              }),
+                            ),
+                          ),
+                          heightSpace(30),
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/veterinary.png",
+                                fit: BoxFit.fill,
+                                height: 27,
+                                width: 27,
+                              ),
+                              widthSpace(10),
+                              const Text(
+                                "Do you have any pets?",
+                                style: CommonTextStyle.regular18w500,
+                              ),
+                            ],
+                          ),
+                          heightSpace(16),
+                          Obx(
+                            () => Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              alignment: WrapAlignment.start,
+                              children:
+                                  List.generate(profileController.petsOptions.length, (index) {
+                                final option = profileController.petsOptions[index];
+                                final isSelected = profileController.selectedPets.contains(option);
+                                return GlassContainerWidget(
+                                  text: option,
+                                  isSelected: isSelected,
+                                  onTap: () {
+                                    profileController.togglePets(option);
                                     profileController.refreshScreen();
                                   },
                                 );

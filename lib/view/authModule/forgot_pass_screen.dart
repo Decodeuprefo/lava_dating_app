@@ -33,111 +33,119 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<ForgotPasswordController>(
       builder: (controller) {
-        return Scaffold(
-          body: Stack(
-            children: [
-              BackgroundContainer(
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        heightSpace(35),
-                        Center(
-                          child: Image.asset(
-                            'assets/images/app_logo.png',
-                            width: 94,
-                            height: 80,
-                          ),
-                        ),
-                        heightSpace(20),
-                        const Text(
-                          'Forgot Your Password?',
-                          style: CommonTextStyle.semiBold30w600,
-                        ),
-                        const Text(
-                          "No worries! Enter your registered email address, and we'll send you instructions to reset your password.",
-                          style: CommonTextStyle.regular14w400,
-                        ),
-                        heightSpace(60),
-                        centerImagePlaceHolder(),
-                        heightSpace(50),
-                        Form(
-                          key: _formKey,
-                          child: TextFormFieldWidget(
-                            controller: forgotPasswordController.emailController,
-                            focusNode: forgotPasswordController.emailFocusNode,
-                            prefixIcon: SvgPicture.asset(
-                              "assets/icons/massage_icon.svg",
-                              height: 24,
-                              width: 24,
-                              fit: BoxFit.fill,
+        return GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus) {
+              currentFocus.unfocus();
+            }
+          },
+          child: Scaffold(
+            body: Stack(
+              children: [
+                BackgroundContainer(
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          heightSpace(35),
+                          Center(
+                            child: Image.asset(
+                              'assets/images/app_logo.png',
+                              width: 94,
+                              height: 80,
                             ),
-                            hint: StringConstants.emailAddress,
-                            validator: (value) => forgotPasswordController.validateEmail(value),
-                            autofocus: true,
-                            onFieldSubmitted: (p0) {
-                              FocusScope.of(context)
-                                  .requestFocus(forgotPasswordController.emailFocusNode);
-                            },
-                            inputFormatters: [
-                              CustomFormatterForSpaceAndEmoji(),
-                            ],
-                            textInputAction: TextInputAction.next,
-                            textInputType: TextInputType.emailAddress,
                           ),
-                        ),
-                        heightSpace(30),
-                        AppButton(
-                          text: "Send Reset Link",
-                          textStyle: CommonTextStyle.regular16w500,
-                          onPressed: controller.isLoading
-                              ? null
-                              : () {
-                                  setState(() {});
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    controller.forgotPassword(context);
-                                  }
-                                },
-                        ),
-                        heightSpace(30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Back to ",
-                              style: CommonTextStyle.regular14w400
-                                  .copyWith(color: ColorConstants.offGrey),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Get.back();
-                              },
-                              child: Text(
-                                'Login',
-                                style: CommonTextStyle.regular14w400
-                                    .copyWith(color: ColorConstants.lightOrange),
+                          heightSpace(20),
+                          const Text(
+                            'Forgot Your Password?',
+                            style: CommonTextStyle.semiBold30w600,
+                          ),
+                          const Text(
+                            "No worries! Enter your registered email address, and we'll send you instructions to reset your password.",
+                            style: CommonTextStyle.regular14w400,
+                          ),
+                          heightSpace(60),
+                          centerImagePlaceHolder(),
+                          heightSpace(50),
+                          Form(
+                            key: _formKey,
+                            child: TextFormFieldWidget(
+                              controller: forgotPasswordController.emailController,
+                              focusNode: forgotPasswordController.emailFocusNode,
+                              prefixIcon: SvgPicture.asset(
+                                "assets/icons/massage_icon.svg",
+                                height: 24,
+                                width: 24,
+                                fit: BoxFit.fill,
                               ),
-                            )
-                          ],
-                        ),
-                        heightSpace(30),
-                      ],
-                    ).marginSymmetric(horizontal: 20),
-                  ),
-                ),
-              ),
-              if (controller.isLoading)
-                Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF4A00)),
+                              hint: StringConstants.emailAddress,
+                              validator: (value) => forgotPasswordController.validateEmail(value),
+                              autofocus: false,
+                              onFieldSubmitted: (p0) {
+                                FocusScope.of(context)
+                                    .requestFocus(forgotPasswordController.emailFocusNode);
+                              },
+                              inputFormatters: [
+                                CustomFormatterForSpaceAndEmoji(),
+                              ],
+                              textInputAction: TextInputAction.next,
+                              textInputType: TextInputType.emailAddress,
+                            ),
+                          ),
+                          heightSpace(30),
+                          AppButton(
+                            text: "Send Reset Link",
+                            textStyle: CommonTextStyle.regular16w500,
+                            onPressed: controller.isLoading
+                                ? null
+                                : () {
+                                    setState(() {});
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    if (_formKey.currentState?.validate() ?? false) {
+                                      controller.forgotPassword(context);
+                                    }
+                                  },
+                          ),
+                          heightSpace(30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Back to ",
+                                style: CommonTextStyle.regular14w400
+                                    .copyWith(color: ColorConstants.offGrey),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Get.back();
+                                },
+                                child: Text(
+                                  'Login',
+                                  style: CommonTextStyle.regular14w400
+                                      .copyWith(color: ColorConstants.lightOrange),
+                                ),
+                              )
+                            ],
+                          ),
+                          heightSpace(30),
+                        ],
+                      ).marginSymmetric(horizontal: 20),
                     ),
                   ),
                 ),
-            ],
+                if (controller.isLoading)
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF4A00)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },

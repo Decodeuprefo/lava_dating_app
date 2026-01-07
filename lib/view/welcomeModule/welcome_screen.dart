@@ -74,8 +74,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
       );
     } else {
       _handleGetStarted();
@@ -104,6 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   controller: _pageController,
                   onPageChanged: _onPageChanged,
                   itemCount: _pages.length,
+                  physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
                     return _buildPage(_pages[index]);
                   },
@@ -148,15 +149,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildTitle(String title) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: const Offset(0.0, 0.3),
+              begin: const Offset(0.0, 0.2),
               end: Offset.zero,
-            ).animate(animation),
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
             child: child,
           ),
         );
@@ -174,15 +180,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildCenterImage(String imagePath, double width, double height) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
           opacity: animation,
           child: ScaleTransition(
             scale: Tween<double>(
-              begin: 0.8,
+              begin: 0.85,
               end: 1.0,
-            ).animate(animation),
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
             child: child,
           ),
         );
@@ -216,15 +227,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildDescriptionText(String description, bool isRichText) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: const Offset(0.0, 0.2),
+              begin: const Offset(0.0, 0.15),
               end: Offset.zero,
-            ).animate(animation),
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
             child: child,
           ),
         );
@@ -283,70 +299,60 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     const double height = 5.0;
     const double gap = 2.0;
 
-    const double totalGapWidth = (totalSteps - 1) * gap;
-    const double availableWidth = totalWidth - totalGapWidth;
-    const double singleStepWidth = availableWidth / totalSteps;
-
-    List<Widget> children = [];
-
-    if (_currentPage > 0) {
-      int count = _currentPage;
-      double width = (count * singleStepWidth) + ((count - 1) * gap);
-
-      children.add(_buildSegment(
-        color: const Color.fromRGBO(217, 217, 217, 1),
-        height: height,
-        width: width,
-      ));
-      children.add(const SizedBox(width: gap));
-    }
-
-    children.add(_buildSegment(
-      color: ColorConstants.lightOrange,
+    return SizedBox(
+      width: totalWidth,
       height: height,
-      width: singleStepWidth,
-    ));
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // Completed segments (gray) - shown as one continuous bar
+          if (_currentPage > 0) ...[
+            Expanded(
+              flex: _currentPage,
+              child: _buildAnimatedSegment(
+                color: const Color.fromRGBO(217, 217, 217, 1),
+                height: height,
+                width: 0, // Width will be determined by Expanded
+              ),
+            ),
+            if (_currentPage < totalSteps)
+              const SizedBox(width: gap),
+          ],
 
-    if (_currentPage < totalSteps - 1) {
-      children.add(const SizedBox(width: gap));
-
-      int count = totalSteps - 1 - _currentPage;
-      double width = (count * singleStepWidth) + ((count - 1) * gap);
-
-      children.add(_buildSegment(
-        color: const Color.fromRGBO(217, 217, 217, 1),
-        height: height,
-        width: width,
-      ));
-    }
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-      child: SizedBox(
-        key: ValueKey<int>(_currentPage),
-        width: totalWidth,
-        height: height,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: children,
-        ),
+          // Active segment (orange)
+          Expanded(
+            flex: 1,
+            child: _buildAnimatedSegment(
+              color: ColorConstants.lightOrange,
+              height: height,
+              width: 0, // Width will be determined by Expanded
+            ),
+          ),
+          // Remaining segments (gray) - shown as one continuous bar
+          if (_currentPage < totalSteps - 1) ...[
+            const SizedBox(width: 2),
+            Expanded(
+              flex: totalSteps - 1 - _currentPage,
+              child: _buildAnimatedSegment(
+                color: const Color.fromRGBO(217, 217, 217, 1),
+                height: height,
+                width: 0, // Width will be determined by Expanded
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildSegment({
+  Widget _buildAnimatedSegment({
     required Color color,
     required double height,
     required double width,
   }) {
-    return Container(
-      width: width,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
       height: height,
       decoration: BoxDecoration(
         color: color,
@@ -375,4 +381,3 @@ class WelcomePageData {
     this.isRichText,
   });
 }
-

@@ -1,9 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
 import 'package:lava_dating_app/Common/constant/color_constants.dart';
 import 'package:lava_dating_app/Common/widgets/custom_background.dart';
+import 'package:lava_dating_app/Common/widgets/glassmorphic_background_widget.dart';
 
 class MatchLikedScreen extends StatefulWidget {
   const MatchLikedScreen({super.key});
@@ -91,7 +91,6 @@ class _MatchLikedScreenState extends State<MatchLikedScreen> {
               Expanded(
                 child: _buildProfileGrid(),
               ),
-              heightSpace(90)
             ],
           ),
         ),
@@ -102,29 +101,16 @@ class _MatchLikedScreenState extends State<MatchLikedScreen> {
   Widget _buildSegmentedControl() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: const Color(0x752A1F3A),
-              border: Border.all(
-                color: const Color(0x66A898B8),
-                width: 1.0,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSegment("Liked", 0),
-                _buildSegment("Disliked", 1),
-                _buildSegment("Really Liked", 2),
-              ],
-            ),
-          ),
+      child: GlassmorphicBackgroundWidget(
+        borderRadius: 10,
+        padding: const EdgeInsets.all(5),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSegment("Liked", 0),
+            _buildSegment("Disliked", 1),
+            _buildSegment("Really Liked", 2),
+          ],
         ),
       ),
     );
@@ -141,7 +127,7 @@ class _MatchLikedScreenState extends State<MatchLikedScreen> {
           });
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             color: isSelected ? ColorConstants.lightOrange : Colors.transparent,
@@ -169,7 +155,9 @@ class _MatchLikedScreenState extends State<MatchLikedScreen> {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+      ).copyWith(top: 30, bottom: 90),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,

@@ -35,11 +35,40 @@ class SelectLifestyleScreenController extends GetxController {
         smokingOption.toUpperCase().replaceAll(' ', '_').replaceAll('-', '');
   }
 
+  String _mapWorkoutToApi(String workoutOption) {
+    final Map<String, String> mapping = {
+      'Every day': 'EVERYDAY',
+      'Often': 'OFTEN',
+      'Sometimes': 'SOMETIMES',
+      'Never': 'NEVER',
+    };
+    return mapping[workoutOption] ?? workoutOption.toUpperCase().replaceAll(' ', '_');
+  }
+
+  String _mapPetsToApi(String petsOption) {
+    final Map<String, String> mapping = {
+      'Dog': 'DOG',
+      'Cat': 'CAT',
+      'Reptile': 'REPTILE',
+      'Amphibian': 'AMPHIBIAN',
+      'Bird': 'BIRD',
+      'Fish': 'FISH',
+      'Don\'t have but love': 'DONT_HAVE_BUT_LOVE',
+      'Other': 'OTHER',
+      'Turtle': 'TURTLE',
+    };
+    return mapping[petsOption] ??
+        petsOption.toUpperCase().replaceAll(' ', '_').replaceAll('\'', '').replaceAll(',', '');
+  }
+
   Future<void> updateLifestyle(BuildContext context) async {
     if (isLoading) return;
 
-    if (_profileController.selectedDrinking.isEmpty || _profileController.selectedSmoking.isEmpty) {
-      showSnackBar(context, 'Please select options for both drinking and smoking.',
+    if (_profileController.selectedDrinking.isEmpty ||
+        _profileController.selectedSmoking.isEmpty ||
+        _profileController.selectedWorkout.isEmpty ||
+        _profileController.selectedPets.isEmpty) {
+      showSnackBar(context, 'Please select options for all lifestyle questions.',
           isErrorMessageDisplay: true);
       return;
     }
@@ -51,6 +80,8 @@ class SelectLifestyleScreenController extends GetxController {
       final body = {
         'alcoholUse': _mapDrinkingToApi(_profileController.selectedDrinking.first),
         'smokingStatus': _mapSmokingToApi(_profileController.selectedSmoking.first),
+        'workout': _mapWorkoutToApi(_profileController.selectedWorkout.first),
+        'pets': _mapPetsToApi(_profileController.selectedPets.first),
       };
 
       final response = await _apiController.updateUserProfile(body);

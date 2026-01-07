@@ -16,6 +16,9 @@ import 'package:lava_dating_app/View/myProfileModule/terms_and_conditions_screen
 import 'package:lava_dating_app/View/myProfileModule/change_password_screen.dart';
 import 'package:lava_dating_app/View/myProfileModule/contact_us_screen.dart';
 import 'package:lava_dating_app/View/myProfileModule/delete_account_screen.dart';
+import 'package:lava_dating_app/Api/api_controller.dart';
+import 'package:lava_dating_app/Common/services/storage_service.dart';
+import 'package:lava_dating_app/View/authModule/login_screen.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -293,6 +296,7 @@ class _SettingScreenState extends State<SettingScreen> {
       borderRadius: 15,
       padding: EdgeInsets.zero,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
             onTap: () {
@@ -302,39 +306,69 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/icons/settings/delete_outline.png',
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/icons/settings/delete_outline.png',
+                  fit: BoxFit.contain,
+                  width: 21,
+                  height: 21,
+                ),
+                widthSpace(16),
+                const Expanded(
+                  child: Text(
+                    "Delete Account",
+                    style: CommonTextStyle.regular14w400,
+                  ),
+                ),
+                Transform.rotate(
+                  angle: -90 * 3.1415926535 / 180,
+                  child: Image.asset(
+                    "assets/icons/drop_down_arrow.png",
                     fit: BoxFit.contain,
                     width: 21,
                     height: 21,
                   ),
-                  widthSpace(16),
-                  const Expanded(
-                    child: Text(
-                      "Delete Account",
-                      style: CommonTextStyle.regular14w400,
-                    ),
-                  ),
-                  Transform.rotate(
-                    angle: -90 * 3.1415926535 / 180,
-                    child: Image.asset(
-                      "assets/icons/drop_down_arrow.png",
-                      fit: BoxFit.contain,
-                      width: 21,
-                      height: 21,
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             ),
           ),
+          heightSpace(15),
           _buildDivider(),
+          heightSpace(15),
+          GestureDetector(
+            onTap: () {
+              _showLogoutDialog(context);
+            },
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/icons/settings/logout.png',
+                  fit: BoxFit.contain,
+                  width: 21,
+                  height: 21,
+                ),
+                widthSpace(16),
+                const Expanded(
+                  child: Text(
+                    "Logout",
+                    style: CommonTextStyle.regular14w400,
+                  ),
+                ),
+                Transform.rotate(
+                  angle: -90 * 3.1415926535 / 180,
+                  child: Image.asset(
+                    "assets/icons/drop_down_arrow.png",
+                    fit: BoxFit.contain,
+                    width: 21,
+                    height: 21,
+                  ),
+                )
+              ],
+            ),
+          ),
         ],
-      ),
+      ).paddingAll(20),
     );
   }
 
@@ -463,6 +497,139 @@ class _SettingScreenState extends State<SettingScreen> {
         );
       },
     );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierColor: const Color.fromRGBO(0, 0, 0, 0.5),
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      useRootNavigator: true,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Material(
+              type: MaterialType.transparency,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GlassBackgroundWidget(
+                  borderRadius: 20,
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        width: 50,
+                        height: 50,
+                        decoration: const BoxDecoration(
+                          color: ColorConstants.lightOrange,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset(
+                          "assets/icons/logout_icon.png",
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Logout?",
+                        style: CommonTextStyle.regular20w600,
+                        textAlign: TextAlign.center,
+                      ),
+                      heightSpace(10),
+                      const Text(
+                        "Are you sure you want to logout? You will need to login again to access your account.",
+                        style: CommonTextStyle.regular14w400,
+                        textAlign: TextAlign.center,
+                      ),
+                      heightSpace(30),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppButton(
+                              text: 'Cancel',
+                              textStyle: CommonTextStyle.regular16w500,
+                              backgroundColor: Colors.transparent,
+                              borderColor: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              borderRadius: 30,
+                            ),
+                          ),
+                          widthSpace(30),
+                          Expanded(
+                            child: AppButton(
+                              text: 'Logout',
+                              textStyle: CommonTextStyle.regular16w500,
+                              backgroundColor: ColorConstants.lightOrange,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _performLogout(context);
+                              },
+                              borderRadius: 30,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  Future<void> _performLogout(BuildContext context) async {
+    try {
+      final apiController = Get.find<ApiController>();
+      final response = await apiController.logout();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await StorageService.clearTokens();
+
+        if (context.mounted) {
+          showSnackBar(
+            context,
+            "Logged out successfully",
+            isErrorMessageDisplay: false,
+            iconPath: "assets/icons/check_icon.png",
+          );
+
+          Future.delayed(const Duration(milliseconds: 200), () {
+            Get.offAll(() => const LoginScreen());
+          });
+        }
+      } else {
+        if (context.mounted) {
+          final errorMessage = apiController.getErrorMessage(response);
+          showSnackBar(context, errorMessage, isErrorMessageDisplay: true);
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showSnackBar(
+          context,
+          'Network error. Please check your connection and try again.',
+          isErrorMessageDisplay: true,
+        );
+      }
+    }
   }
 
   @override

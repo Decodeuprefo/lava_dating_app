@@ -11,8 +11,8 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Shimmer.fromColors(
-        baseColor: Colors.white12,
-        highlightColor: Colors.grey[700]!,
+      baseColor: Colors.white.withOpacity(0.25),
+      highlightColor: Colors.grey[300]!,
         child: Column(
           children: [
             // Search Bar Shimmer (with filter icon)
@@ -23,7 +23,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                     height: 50,
                     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -34,7 +34,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                   height: 50,
                   margin: const EdgeInsets.only(right: 20, top: 16, bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -57,7 +57,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
               height: 495,
               margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Stack(
@@ -102,7 +102,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                             height: 24,
                             margin: const EdgeInsets.only(bottom: 8, left: 20, right: 20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.4),
+                              color: Colors.white.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -112,7 +112,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                             height: 16,
                             margin: const EdgeInsets.only(bottom: 12, left: 20, right: 20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -122,7 +122,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                             height: 14,
                             margin: const EdgeInsets.only(bottom: 4, left: 20, right: 20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withOpacity(0.45),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -131,7 +131,7 @@ class SwipeScreenShimmerWidget extends StatelessWidget {
                             height: 14,
                             margin: const EdgeInsets.only(bottom: 100, left: 20, right: 20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withOpacity(0.45),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),

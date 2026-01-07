@@ -24,7 +24,7 @@ class AddProfilePhotosScreen extends StatefulWidget {
 class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
   final List<File?> _selectedImages = [];
   final ImagePicker _picker = ImagePicker();
-  final int _maxImages = 6;
+  final int _maxImages = 15;
 
   @override
   void initState() {
@@ -130,66 +130,67 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        heightSpace(13),
-                        // Hide back button if this is the root/first screen
-                        Builder(
-                          builder: (context) {
-                            final route = ModalRoute.of(context);
-                            final isFirstRoute = route?.isFirst ?? false;
-                            final canPop = Navigator.of(context).canPop();
-                            
-                            // Show back button only if:
-                            // 1. This is NOT the first route in navigation stack
-                            // 2. AND Navigator can pop (has previous route)
-                            if (!isFirstRoute && canPop) {
-                              return InkWell(
-                                onTap: Get.back,
-                                child: SvgPicture.asset(
-                                  "assets/icons/back_arrow.svg",
-                                  height: 30,
-                                  width: 30,
-                                  fit: BoxFit.fill,
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        heightSpace(90),
-                        const CommonTextWidget(
-                          text: 'Get your shine on',
-                          textType: TextType.head,
-                        ),
-                        const CommonTextWidget(
-                          text:
-                              'Add your photos here. Starting with one will spark a flame🔥, but more than 3 photos usually ignites more matches 🔥🔥🔥',
-                          textType: TextType.des,
-                        ),
-                        heightSpace(50),
-                        _selectedImages.isEmpty ? selectImagePlaceholder() : _buildGridView(),
-                      ],
-                    ).marginSymmetric(horizontal: 20),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          heightSpace(13),
+                          Builder(
+                            builder: (context) {
+                              final route = ModalRoute.of(context);
+                              final isFirstRoute = route?.isFirst ?? false;
+                              final canPop = Navigator.of(context).canPop();
+
+                              if (!isFirstRoute && canPop) {
+                                return InkWell(
+                                  onTap: Get.back,
+                                  child: SvgPicture.asset(
+                                    "assets/icons/back_arrow.svg",
+                                    height: 30,
+                                    width: 30,
+                                    fit: BoxFit.fill,
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          heightSpace(90),
+                          const CommonTextWidget(
+                            text: 'Get your shine on',
+                            textType: TextType.head,
+                          ),
+                          const CommonTextWidget(
+                            text:
+                                'Add your photos here. Starting with one will spark a flame🔥, but more than 3 photos usually ignites more matches 🔥🔥🔥',
+                            textType: TextType.des,
+                          ),
+                          heightSpace(50),
+                          _selectedImages.isEmpty ? selectImagePlaceholder() : _buildGridView(),
+                          heightSpace(20),
+                        ],
+                      ).marginSymmetric(horizontal: 20),
+                    ),
                   ),
-                  AppButton(
-                    text: "Continue",
-                    textStyle: CommonTextStyle.regular16w500,
-                    onPressed: controller.isLoading
-                        ? null
-                        : () {
-                            if (_selectedImages.isEmpty) {
-                              showSnackBar(context, 'Please select at least one photo to continue.',
-                                  isErrorMessageDisplay: true);
-                              return;
-                            }
-                            // Convert List<File?> to List<File> (filtering out nulls)
-                            final List<File> photoFiles =
-                                _selectedImages.whereType<File>().toList();
-                            controller.uploadPhotos(context, photoFiles);
-                          },
-                  ).marginSymmetric(horizontal: 20, vertical: 20)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: AppButton(
+                      text: "Continue",
+                      textStyle: CommonTextStyle.regular16w500,
+                      onPressed: controller.isLoading
+                          ? null
+                          : () {
+                              if (_selectedImages.isEmpty) {
+                                showSnackBar(context, 'Please select at least one photo to continue.',
+                                    isErrorMessageDisplay: true);
+                                return;
+                              }
+                              final List<File> photoFiles =
+                                  _selectedImages.whereType<File>().toList();
+                              controller.uploadPhotos(context, photoFiles);
+                            },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -200,28 +201,26 @@ class _AddProfilePhotosScreenState extends State<AddProfilePhotosScreen> {
   }
 
   Widget _buildGridView() {
-    return Expanded(
-      child: GridView.builder(
-        padding: EdgeInsets.zero,
-        // removes side padding completely
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10, // spacing between columns
-          mainAxisSpacing: 30, // spacing between rows
-          childAspectRatio: 0.75,
-        ),
-        itemCount: _selectedImages.length < _maxImages
-            ? _selectedImages.length + 1
-            : _selectedImages.length,
-        itemBuilder: (context, index) {
-          if (index < _selectedImages.length) {
-            return _buildImageCard(_selectedImages[index]!, index);
-          } else {
-            return _buildAddMoreCard();
-          }
-        },
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 30,
+        childAspectRatio: 0.75,
       ),
+      itemCount: _selectedImages.length < _maxImages
+          ? _selectedImages.length + 1
+          : _selectedImages.length,
+      itemBuilder: (context, index) {
+        if (index < _selectedImages.length) {
+          return _buildImageCard(_selectedImages[index]!, index);
+        } else {
+          return _buildAddMoreCard();
+        }
+      },
     );
   }
 

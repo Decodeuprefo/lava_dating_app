@@ -76,7 +76,7 @@ class _SelectHeightScreenState extends State<SelectHeightScreen> {
                               final route = ModalRoute.of(context);
                               final isFirstRoute = route?.isFirst ?? false;
                               final canPop = Navigator.of(context).canPop();
-                              
+
                               // Show back button only if:
                               // 1. This is NOT the first route in navigation stack
                               // 2. AND Navigator can pop (has previous route)
@@ -101,18 +101,28 @@ class _SelectHeightScreenState extends State<SelectHeightScreen> {
                           ),
                           heightSpace(100),
                           Obx(
-                            () => HeightPickerWidget(
-                              key:
-                                  ValueKey('height_picker_${profileController.feetORCm.value}'),
-                              minHeight: profileController.minHeight.value,
-                              maxHeight: profileController.maxHeight.value,
-                              isFtCm: profileController.feetORCm,
-                              onMinHeightChanged: (hig) {
-                                profileController.minHeight.value = hig;
+                            () => AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              switchInCurve: Curves.easeInOut,
+                              switchOutCurve: Curves.easeInOut,
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
                               },
-                              onMaxHeightChanged: (hig) {
-                                profileController.maxHeight.value = hig;
-                              },
+                              child: HeightPickerWidget(
+                                key: ValueKey('height_picker_${profileController.feetORCm.value}'),
+                                minHeight: profileController.minHeight.value,
+                                maxHeight: profileController.maxHeight.value,
+                                isFtCm: profileController.feetORCm,
+                                onMinHeightChanged: (hig) {
+                                  profileController.minHeight.value = hig;
+                                },
+                                onMaxHeightChanged: (hig) {
+                                  profileController.maxHeight.value = hig;
+                                },
+                              ),
                             ),
                           ),
                           heightSpace(30),

@@ -12,8 +12,8 @@ class HomeScreenShimmerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Shimmer.fromColors(
-        baseColor: Colors.white12,
-        highlightColor: Colors.grey[700]!,
+        baseColor: Colors.white.withOpacity(0.25),
+        highlightColor: Colors.grey[300]!,
         child: Column(
           children: [
             Column(
@@ -147,7 +147,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
               width: 60,
               height: 12,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -156,7 +156,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
               width: 40,
               height: 16,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -174,7 +174,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withOpacity(0.4),
             shape: BoxShape.circle,
           ),
         ),
@@ -196,7 +196,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
       width: 150,
       height: 170,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.3),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -208,7 +208,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.4),
               shape: BoxShape.circle,
             ),
           ),
@@ -239,7 +239,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
     return Container(
       width: 112,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.3),
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
@@ -251,7 +251,7 @@ class HomeScreenShimmerWidget extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.4),
               shape: BoxShape.circle,
             ),
           ),

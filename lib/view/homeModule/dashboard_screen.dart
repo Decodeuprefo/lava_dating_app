@@ -9,7 +9,7 @@ import '../chatModule/chat_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int? initialIndex;
-  
+
   const DashboardScreen({super.key, this.initialIndex});
 
   @override
@@ -18,7 +18,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late int _selectedIndex;
-  
+
   @override
   void initState() {
     super.initState();

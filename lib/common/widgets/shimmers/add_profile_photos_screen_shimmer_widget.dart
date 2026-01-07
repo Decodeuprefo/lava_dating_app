@@ -12,8 +12,8 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.white12,
-      highlightColor: Colors.grey[700]!,
+      baseColor: Colors.white.withOpacity(0.25),
+      highlightColor: Colors.grey[300]!,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
@@ -29,7 +29,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -39,7 +39,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
                   width: 200,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -49,7 +49,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
                   width: double.infinity,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -58,7 +58,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
                   width: 300,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -67,7 +67,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
                   width: 280,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -103,7 +103,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Continue",
+                "",
                 style: CommonTextStyle.regular16w500,
               ),
             ),
@@ -117,7 +117,7 @@ class AddProfilePhotosScreenShimmerWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.3),
       ),
       child: Stack(
         clipBehavior: Clip.none,

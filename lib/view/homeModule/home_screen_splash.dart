@@ -36,6 +36,9 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _checkAndShowSafetyDialog();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchRemainingSwipes();
+    });
   }
 
   @override
@@ -51,14 +54,15 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
     if (state == AppLifecycleState.paused) {
       // App is going to background - set killed flag
       StorageService.setAppKilledFlag();
-    } 
+    }
     // Only check killed flag when resuming from paused state (not from inactive)
     // This ensures dialog only shows when app was actually killed/reopened, not on status bar pull
-    else if (state == AppLifecycleState.resumed && _lastLifecycleState == AppLifecycleState.paused) {
+    else if (state == AppLifecycleState.resumed &&
+        _lastLifecycleState == AppLifecycleState.paused) {
       // App resumed from background - check if it was killed
       _checkAndShowSafetyDialog();
     }
-    
+
     // Update last state for next comparison
     _lastLifecycleState = state;
   }
@@ -205,11 +209,16 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
                             homeController.homeData?.recentMatches == null ||
                             homeController.homeData?.suggestions == null ||
                             homeController.homeData?.suggestions?.isEmpty == true
-                        ? const Center(
-                            child: Text(
-                            "No Data Found!",
-                            style: CommonTextStyle.regular16w500,
-                          ))
+                        ? SizedBox(
+                            height: 300,
+                            child: Center(
+                              child: Text(
+                                "No Data Found!",
+                                style: CommonTextStyle.regular16w500
+                                    .copyWith(color: ColorConstants.greyLight),
+                              ),
+                            ),
+                          )
                         : const SizedBox(),
                     heightSpace(100),
                   ],
@@ -374,11 +383,16 @@ class _HomeScreenSplashState extends State<HomeScreenSplash> with WidgetsBinding
   }
 
   Widget _buildSwipesCard(HomeScreenController homeController) {
-    final remainingSwipes = homeController.homeData?.stats?.remainingSwipes ?? 0;
-    final totalDailySwipes = homeController.homeData?.stats?.totalDailySwipes ?? 100;
-    final isUnlimitedSwipes = homeController.homeData?.stats?.isUnlimitedSwipes ?? false;
+    final remainingSwipes = homeController.remainingSwipesFromApi ??
+        homeController.homeData?.stats?.remainingSwipes ??
+        0;
+    final totalDailySwipes = homeController.totalDailySwipesFromApi ??
+        homeController.homeData?.stats?.totalDailySwipes ??
+        100;
+    final isUnlimitedSwipes = homeController.isUnlimitedSwipesFromApi ??
+        homeController.homeData?.stats?.isUnlimitedSwipes ??
+        false;
 
-    // Calculate progress (avoid division by zero)
     final progress = totalDailySwipes > 0 ? remainingSwipes / totalDailySwipes : 0.0;
 
     return GlassBackgroundWidget(

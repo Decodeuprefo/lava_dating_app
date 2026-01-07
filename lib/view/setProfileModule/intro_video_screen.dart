@@ -14,7 +14,6 @@ import '../../Common/widgets/custom_background.dart';
 import '../../Common/widgets/custom_button.dart';
 import '../../Common/widgets/shimmers/intro_video_screen_shimmer_widget.dart';
 import '../../Controller/setProfileControllers/intro_video_screen_controller.dart';
-import 'intro_video_view_screen.dart';
 
 class IntroVideoScreen extends StatefulWidget {
   const IntroVideoScreen({super.key});
@@ -86,7 +85,7 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
                             final route = ModalRoute.of(context);
                             final isFirstRoute = route?.isFirst ?? false;
                             final canPop = Navigator.of(context).canPop();
-                            
+
                             // Show back button only if:
                             // 1. This is NOT the first route in navigation stack
                             // 2. AND Navigator can pop (has previous route)
@@ -104,7 +103,7 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
                             return const SizedBox.shrink();
                           },
                         ),
-                        heightSpace(90),
+                        heightSpace(_chewieController != null ? 114 : 90),
                         CommonTextWidget(
                           text: _chewieController != null
                               ? 'VIBE CHECK! 🤙🏼'

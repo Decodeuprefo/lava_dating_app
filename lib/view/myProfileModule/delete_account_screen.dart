@@ -100,7 +100,7 @@ class DeleteAccountScreen extends StatelessWidget {
   }
 
   Widget _buildFirstParagraph() {
-    return Text(
+    return const Text(
       "Deleting your account will permanently remove all your data, including your profile, matches, messages, and activity history.",
       style: CommonTextStyle.regular14w400,
       textAlign: TextAlign.left,
@@ -108,7 +108,7 @@ class DeleteAccountScreen extends StatelessWidget {
   }
 
   Widget _buildSecondParagraph() {
-    return Text(
+    return const Text(
       "Once your account is deleted, it cannot be recovered, and you will lose access to any saved information or ongoing conversations. If you simply wish to take a break, consider deactivating your account instead, so you can return later without losing your data.",
       style: CommonTextStyle.regular14w400,
       textAlign: TextAlign.left,
@@ -116,7 +116,7 @@ class DeleteAccountScreen extends StatelessWidget {
   }
 
   Widget _buildThirdParagraph() {
-    return Text(
+    return const Text(
       "Make sure to back up any important information before proceeding, as this action is final and irreversible.",
       style: CommonTextStyle.regular14w400,
       textAlign: TextAlign.left,

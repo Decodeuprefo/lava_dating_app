@@ -112,11 +112,25 @@ class _PreferredAgeRangeScreenState extends State<PreferredAgeRangeScreen> {
                               onMinAgeChanged: (age) {
                                 if (age <= profileController.maxAge.value) {
                                   profileController.minAge.value = age;
+                                } else {
+                                  // Show error message when user tries to select min age greater than max age
+                                  showSnackBar(
+                                    context,
+                                    "You cannot select a value above the maximum age.",
+                                    isErrorMessageDisplay: true,
+                                  );
                                 }
                               },
                               onMaxAgeChanged: (age) {
                                 if (age >= profileController.minAge.value) {
                                   profileController.maxAge.value = age;
+                                } else {
+                                  // Show error message when user tries to select max age less than min age
+                                  showSnackBar(
+                                    context,
+                                    "You cannot select a value below the minimum age.",
+                                    isErrorMessageDisplay: true,
+                                  );
                                 }
                               },
                             ),

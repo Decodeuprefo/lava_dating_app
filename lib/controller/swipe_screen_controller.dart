@@ -31,8 +31,7 @@ class SwipeScreenController extends GetxController {
   int currentSkip = 0;
   final int limit = 20;
 
-  // bool hasMore = true;
-  bool hasMore = false;
+  bool hasMore = true;
   int totalProfiles = 0;
 
   // Filter tracking
@@ -342,7 +341,6 @@ class SwipeScreenController extends GetxController {
     }
   }
 
-  // Fetch remaining swipes from API
   Future<void> _fetchRemainingSwipes() async {
     try {
       final response = await _apiController.getRemainingSwipes();
@@ -350,8 +348,26 @@ class SwipeScreenController extends GetxController {
         if (response.body != null) {
           final body = response.body as Map<String, dynamic>;
           final remainingSwipes = body['remainingSwipes'] as int?;
+          final totalDailySwipes = body['totalDailySwipes'] as int?;
+          final isUnlimitedSwipes = body['isUnlimitedSwipes'] as bool?;
+          
           if (remainingSwipes != null) {
             swipesLeft.value = remainingSwipes;
+          }
+          
+          try {
+            final homeController = Get.find<HomeScreenController>();
+            if (remainingSwipes != null) {
+              homeController.remainingSwipesFromApi = remainingSwipes;
+            }
+            if (totalDailySwipes != null) {
+              homeController.totalDailySwipesFromApi = totalDailySwipes;
+            }
+            if (isUnlimitedSwipes != null) {
+              homeController.isUnlimitedSwipesFromApi = isUnlimitedSwipes;
+            }
+            homeController.update();
+          } catch (e) {
           }
         }
       }
@@ -761,10 +777,8 @@ class SwipeScreenController extends GetxController {
     lastActionType.value = '';
     hideSnackbar();
 
-    // Update UI to reflect restored profile
     update();
 
-    // Call API in background (non-blocking)
     _undoLastActionInBackground().then((_) {
       // Fetch remaining swipes after undo
       _fetchRemainingSwipes();
@@ -776,7 +790,6 @@ class SwipeScreenController extends GetxController {
     try {
       await _apiController.undoLastAction();
     } catch (e) {
-      // Silently handle errors - UI already updated
       print('Error undoing last action: $e');
     }
   }

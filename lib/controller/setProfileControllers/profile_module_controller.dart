@@ -14,6 +14,8 @@ class ProfileModuleController extends GetxController {
   final selectedEthnicity = <String>[].obs; // Max 2 selections
   final selectedDrinking = <String>[].obs;
   final selectedSmoking = <String>[].obs;
+  final selectedWorkout = <String>[].obs;
+  final selectedPets = <String>[].obs;
   final selectedEducation = "".obs;
   final selectedLanguages = <String>[].obs;
   final selectedRelationshipType = <String>[].obs;
@@ -230,6 +232,25 @@ class ProfileModuleController extends GetxController {
     'Trying to quit',
   ];
 
+  final List<String> workoutOptions = [
+    'Every day',
+    'Often',
+    'Sometimes',
+    'Never',
+  ];
+
+  final List<String> petsOptions = [
+    'Dog',
+    'Cat',
+    'Reptile',
+    'Amphibian',
+    'Bird',
+    'Fish',
+    'Don\'t have but love',
+    'Other',
+    'Turtle',
+  ];
+
   void toggleDrinking(String option) {
     if (selectedDrinking.contains(option)) {
       selectedDrinking.remove(option);
@@ -245,6 +266,24 @@ class ProfileModuleController extends GetxController {
     } else {
       selectedSmoking.clear();
       selectedSmoking.add(option);
+    }
+  }
+
+  void toggleWorkout(String option) {
+    if (selectedWorkout.contains(option)) {
+      selectedWorkout.remove(option);
+    } else {
+      selectedWorkout.clear();
+      selectedWorkout.add(option);
+    }
+  }
+
+  void togglePets(String option) {
+    if (selectedPets.contains(option)) {
+      selectedPets.remove(option);
+    } else {
+      selectedPets.clear();
+      selectedPets.add(option);
     }
   }
 

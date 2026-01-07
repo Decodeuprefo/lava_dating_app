@@ -5,8 +5,11 @@ import 'package:get/get.dart';
 import '../Api/api_controller.dart';
 import '../Common/constant/custom_tools.dart';
 import '../Common/constant/string_constants.dart';
+import '../Common/services/storage_service.dart';
+import '../Common/utils/profile_navigation_helper.dart';
 import '../Model/signup_model.dart';
 import '../View/authModule/login_screen.dart';
+import '../View/setProfileModule/select_gender_screen.dart';
 
 class SignupScreenController extends GetxController {
   final ApiController _apiController = Get.find<ApiController>();
@@ -29,13 +32,24 @@ class SignupScreenController extends GetxController {
   bool isConfPasswordVisible = false;
   bool isLoading = false;
 
-  /// To validate field is not empty
-  String? validateFieldNotEmpty(String? value, String msg) {
+  String? validateFirstName(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return msg;
-    } else {
-      return null;
+      return StringConstants.firstNameRequired;
     }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+      return StringConstants.firstNameInvalidChars;
+    }
+    return null;
+  }
+
+  String? validateLastName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return StringConstants.lastNameRequired;
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+      return StringConstants.lastNameInvalidChars;
+    }
+    return null;
   }
 
   /// To validate email
@@ -63,35 +77,53 @@ class SignupScreenController extends GetxController {
     update();
   }
 
-  /// To validate password
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return StringConstants.emptyPasswordValidation;
-    } else {
-      return null;
+      return StringConstants.passwordRequired;
     }
+
+    if (value.length < 8) {
+      return StringConstants.passwordMinLength;
+    }
+
+    if (!value.contains(RegExp(r'[a-z]'))) {
+      return StringConstants.passwordMissingLowercase;
+    }
+
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return StringConstants.passwordMissingUppercase;
+    }
+
+    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>_+\-=\[\]\\;\/`~]'))) {
+      return StringConstants.passwordMissingSpecialChar;
+    }
+
+    return null;
   }
 
-  /// To validate confirm password
   String? validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return StringConstants.emptyConfPasswordValidation;
-    } else if (value != passController.text) {
-      return "Passwords do not match";
-    } else {
-      return null;
+      return StringConstants.confirmPasswordRequired;
     }
+    if (value != passController.text) {
+      return StringConstants.confirmPasswordMismatch;
+    }
+    return null;
   }
 
-  /// To validate mobile number - must be exactly 10 digits
   String? validateMobileNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return StringConstants.emptyMobileNumber;
+      return StringConstants.mobileNumberRequired;
     }
-    // Remove any non-digit characters for validation
     final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digitsOnly.length != 10) {
-      return 'Mobile number must be exactly 10 digits';
+    if (digitsOnly.length < 7) {
+      return StringConstants.mobileNumberMinLength;
+    }
+    if (digitsOnly.length > 15) {
+      return StringConstants.mobileNumberInvalidFormat;
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(digitsOnly)) {
+      return StringConstants.mobileNumberInvalidFormat;
     }
     return null;
   }
@@ -136,10 +168,14 @@ class SignupScreenController extends GetxController {
         final signupResponse = SignupResponse.fromJson(response.body as Map<String, dynamic>);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // Success response
           if (signupResponse.isSuccess) {
-            // Navigate to login screen on success
-            Get.offAll(() => const LoginScreen());
+            if (signupResponse.accessToken != null && signupResponse.refreshToken != null) {
+              await StorageService.saveTokens(
+                signupResponse.accessToken!,
+                signupResponse.refreshToken!,
+              );
+            }
+            Get.offAll(() => const SelectGenderScreen());
           } else {
             // Handle error message in success status code
             final errorMessage =
