@@ -54,6 +54,10 @@ class ApiController extends GetConnect {
     return get('/auth/me');
   }
 
+  Future<Response> getUserProfileData() {
+    return get('/users/profile');
+  }
+
   Future<Response> getSwipeDeck({
     int limit = 20,
     int skip = 0,

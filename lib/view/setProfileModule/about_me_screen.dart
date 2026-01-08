@@ -12,8 +12,11 @@ import '../../Common/widgets/text_form_field_widget.dart';
 import '../../Common/widgets/shimmers/about_me_screen_shimmer_widget.dart';
 
 class AboutMeScreen extends StatefulWidget {
+  final bool? fromEdit;
+
   const AboutMeScreen({
     super.key,
+    this.fromEdit,
   });
 
   @override
@@ -72,7 +75,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                               final route = ModalRoute.of(context);
                               final isFirstRoute = route?.isFirst ?? false;
                               final canPop = Navigator.of(context).canPop();
-                              
+
                               // Show back button only if:
                               // 1. This is NOT the first route in navigation stack
                               // 2. AND Navigator can pop (has previous route)
@@ -125,7 +128,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                     ),
                   ),
                   AppButton(
-                    text: "Continue",
+                    text: widget.fromEdit == true ? "Save" : "Continue",
                     textStyle: CommonTextStyle.regular16w500,
                     onPressed: ctrl.isLoading
                         ? null
@@ -136,7 +139,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                                   isErrorMessageDisplay: true);
                               return;
                             }
-                            controller.updateBio(context, bio);
+                            controller.updateBio(context, bio, widget.fromEdit);
                           },
                   ).marginSymmetric(horizontal: 20, vertical: 20)
                 ],

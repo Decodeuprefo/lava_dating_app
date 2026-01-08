@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:lava_dating_app/Common/constant/color_constants.dart';
 import 'package:lava_dating_app/Common/constant/common_text_style.dart';
 import 'package:lava_dating_app/Common/constant/custom_tools.dart';
-import 'package:lava_dating_app/Common/constant/color_constants.dart';
 import 'package:lava_dating_app/Common/widgets/custom_background.dart';
 import 'package:lava_dating_app/Common/widgets/text_form_field_widget.dart';
+import 'package:lava_dating_app/View/setProfileModule/about_me_screen.dart';
+
+import '../../Common/widgets/custom_button.dart';
+import '../setProfileModule/select_dob_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_gender_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_height_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/interests_and_hobbies.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_religion_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_lifestyle_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_education_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_languages_spoken.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_relationship_type_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/preferred_age_range_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/preferred_gender_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/select_marital_status.dart';
+import 'package:lava_dating_app/View/setProfileModule/kids_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/preferred_distance_screen.dart';
+import 'package:lava_dating_app/View/setProfileModule/race_flags_screen.dart';
+import '../../Common/widgets/shimmers/edit_profile_screen_shimmer_widget.dart';
+import '../../Common/widgets/video_thumbnail_widget.dart';
+import '../../controller/edit_profile_controller.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -15,6 +36,8 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final EditProfileController controller = Get.put(EditProfileController());
+
   String? profileImageUrl;
   String userName = "Jennifer Burk";
   String location = "New York, USA";
@@ -113,65 +136,101 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       body: BackgroundContainer(
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                heightSpace(20),
-                _buildBackButton(),
-                _buildProfileSection(),
-                heightSpace(30),
-                _buildPhotosSection(),
-                heightSpace(30),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Intro Video",
-                      style:
-                          CommonTextStyle.regular18w600.copyWith(color: ColorConstants.lightOrange),
-                    ),
-                    heightSpace(10),
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        LayoutBuilder(
-                          builder: (BuildContext context, BoxConstraints constraints) {
-                            return Container(
-                              height: 200,
-                              decoration: const BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                              ),
-                            );
-                          },
-                        ),
-                        Positioned.fill(
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: Image.asset(
-                                "assets/icons/video_play_icon.png",
-                                height: 50,
-                                width: 50,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    heightSpace(30),
-                    Text(
-                      "Personal Information",
-                      style:
-                      CommonTextStyle.regular18w600.copyWith(color: ColorConstants.lightOrange),
-                    ),
-                    heightSpace(20),
-                    _buildPersonalInfoForm(),
-                  ],
-                ).paddingSymmetric(horizontal: 20),
-              ],
-            ),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GetBuilder<EditProfileController>(builder: (controller) {
+                        return controller.isLoading
+                            ? const EditProfileScreenShimmerWidget()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  heightSpace(20),
+                                  _buildBackButton(),
+                                  _buildProfileSection(),
+                                  heightSpace(30),
+                                  _buildPhotosSection(),
+                                  heightSpace(30),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Intro Video",
+                                        style: CommonTextStyle.regular18w600
+                                            .copyWith(color: ColorConstants.lightOrange),
+                                      ),
+                                      heightSpace(10),
+                                      Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          SizedBox(
+                                            height: 200,
+                                            width: double.infinity,
+                                            child: (controller
+                                                            .userProfile?.introVideo !=
+                                                        null &&
+                                                    controller.userProfile!.introVideo!
+                                                        .isNotEmpty)
+                                                ? VideoThumbnailWidget(
+                                                    videoUrl: controller
+                                                        .userProfile!.introVideo!)
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(10),
+                                                    ),
+                                                    child: const Center(
+                                                      child: Icon(Icons.videocam_off,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                          ),
+                                          Positioned.fill(
+                                            child: Center(
+                                              child: GestureDetector(
+                                                onTap: () {},
+                                                child: Image.asset(
+                                                  "assets/icons/video_play_icon.png",
+                                                  height: 50,
+                                                  width: 50,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      heightSpace(30),
+                                      Text(
+                                        "Personal Information",
+                                        style: CommonTextStyle.regular18w600
+                                            .copyWith(color: ColorConstants.lightOrange),
+                                      ),
+                                      heightSpace(20),
+                                      _buildPersonalInfoForm(),
+                                    ],
+                                  ).paddingSymmetric(horizontal: 20),
+                                ],
+                              );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+              GetBuilder<EditProfileController>(builder: (controller) {
+                return controller.isLoading
+                    ? const SizedBox()
+                    : AppButton(
+                        text: "Save",
+                        textStyle: CommonTextStyle.regular16w500,
+                        onPressed: () {},
+                      ).marginSymmetric(vertical: 10, horizontal: 20);
+              }),
+            ],
           ),
         ),
       ),
@@ -208,9 +267,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 child: ClipOval(
-                  child: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                  child: (controller.userProfile?.photos != null &&
+                          controller.userProfile!.photos!.isNotEmpty)
                       ? Image.network(
-                          profileImageUrl!,
+                          controller.userProfile!.photos![0],
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
@@ -275,7 +335,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           heightSpace(20),
           Text(
-            userName,
+            "${controller.userProfile?.firstName ?? ""} ${controller.userProfile?.lastName ?? ""}",
             style: CommonTextStyle.regular18w600,
           ),
           heightSpace(10),
@@ -290,7 +350,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               widthSpace(6),
               Text(
-                location,
+                "${controller.userProfile?.city ?? ""}, ${controller.userProfile?.country ?? ""}",
                 style: CommonTextStyle.regular14w400,
               ),
             ],
@@ -301,6 +361,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildPhotosSection() {
+    final photos = controller.userProfile?.photos ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,13 +388,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: profilePhotos.length,
+            itemCount: photos.length,
             itemBuilder: (context, index) {
               return Padding(
                 padding: EdgeInsets.only(
-                  right: index < profilePhotos.length - 1 ? 10 : 0,
+                  right: index < photos.length - 1 ? 10 : 0,
                 ),
-                child: _buildImageCard(profilePhotos[index]),
+                child: _buildImageCard(photos[index].toString()),
               );
             },
           ),
@@ -453,6 +514,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           titleLabelName: "",
           maxLines: 4,
           minLines: 4,
+          readOnly: true,
+          showCursor: false,
+          onTap: () {
+            Get.to(() => const AboutMeScreen(
+                  fromEdit: true,
+                ));
+          },
         ),
         heightSpace(20),
         const Text(
@@ -465,8 +533,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show date picker
+            Get.to(() => const SelectDobScreen(
+                  fromEdit: true,
+                ));
           },
         ),
         heightSpace(20),
@@ -491,8 +562,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show gender picker
+            Get.to(() => const SelectGenderScreen());
           },
         ),
         heightSpace(20),
@@ -510,13 +582,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 hint: "",
                 titleLabelName: "",
                 readOnly: true,
+                showCursor: false,
                 onTap: () {
-                  // TODO: Show height picker
+                  Get.to(() => const SelectHeightScreen());
                 },
               ),
             ),
             widthSpace(20),
-            Expanded(
+            const Expanded(
               flex: 1,
               child: SizedBox(),
             ),
@@ -533,8 +606,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show interests picker
+            Get.to(() => const InterestsAndHobbies());
           },
         ),
         heightSpace(20),
@@ -548,8 +622,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show religion picker
+            Get.to(() => const ReligionScreen());
           },
         ),
         heightSpace(20),
@@ -568,8 +643,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show drinking picker
+            Get.to(() => const LifestyleScreen());
           },
         ),
         heightSpace(20),
@@ -583,8 +659,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show smoking picker
+            Get.to(() => const LifestyleScreen());
           },
         ),
         heightSpace(20),
@@ -598,8 +675,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show workout picker
+            Get.to(() => const LifestyleScreen());
           },
         ),
         heightSpace(20),
@@ -613,8 +691,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show pets picker
+            Get.to(() => const LifestyleScreen());
           },
         ),
         heightSpace(20),
@@ -628,8 +707,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show education picker
+            Get.to(() => const SelectEducationScreen());
           },
         ),
         heightSpace(20),
@@ -643,8 +723,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show languages picker
+            Get.to(() => const SelectLanguagesSpoken());
           },
         ),
         heightSpace(20),
@@ -658,8 +739,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show relationship type picker
+            Get.to(() => const SelectRelationshipTypeScreen());
           },
         ),
         heightSpace(20),
@@ -673,8 +755,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show age range picker
+            Get.to(() => const PreferredAgeRangeScreen());
           },
         ),
         heightSpace(20),
@@ -688,8 +771,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show preferred gender picker
+            Get.to(() => const PreferredGenderScreen());
           },
         ),
         heightSpace(20),
@@ -703,8 +787,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show journey of love picker
+            Get.to(() => const SelectMaritalStatus());
           },
         ),
         heightSpace(20),
@@ -718,8 +803,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show kids picker
+            Get.to(() => const KidsScreen());
           },
         ),
         heightSpace(20),
@@ -733,8 +819,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show distance picker
+            Get.to(() => const PreferredDistanceScreen());
           },
         ),
         heightSpace(20),
@@ -748,11 +835,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           hint: "",
           titleLabelName: "",
           readOnly: true,
+          showCursor: false,
           onTap: () {
-            // TODO: Show race flags picker
+            Get.to(() => const RaceFlagsScreen());
           },
         ),
-        heightSpace(30),
+        heightSpace(20),
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../Api/api_controller.dart';
 import '../../Common/constant/custom_tools.dart';
 import '../../Common/services/storage_service.dart';
+import '../../View/myProfileModule/edit_profile_screen.dart';
 import '../../View/setProfileModule/interests_and_hobbies.dart';
 
 class SelectDobScreenController extends GetxController {
@@ -19,7 +20,7 @@ class SelectDobScreenController extends GetxController {
     update();
   }
 
-  Future<void> updateDateOfBirth(BuildContext context) async {
+  Future<void> updateDateOfBirth(BuildContext context, bool? fromEdit) async {
     if (isLoading) return;
 
     final now = DateTime.now();
@@ -56,8 +57,12 @@ class SelectDobScreenController extends GetxController {
         }
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          await StorageService.setProfileStep(5);
-          Get.to(() => const InterestsAndHobbies(), transition: Transition.noTransition);
+          if (fromEdit == true) {
+            Get.off(() => const EditProfileScreen(), transition: Transition.noTransition);
+          } else {
+            await StorageService.setProfileStep(5);
+            Get.to(() => const InterestsAndHobbies(), transition: Transition.noTransition);
+          }
         } else {
           final errorMessage = _apiController.getErrorMessage(response);
           showSnackBar(context, errorMessage, isErrorMessageDisplay: true);

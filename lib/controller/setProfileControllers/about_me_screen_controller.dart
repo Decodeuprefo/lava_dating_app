@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lava_dating_app/View/myProfileModule/edit_profile_screen.dart';
 import '../../Api/api_controller.dart';
 import '../../Common/constant/custom_tools.dart';
 import '../../Common/services/storage_service.dart';
@@ -10,7 +11,7 @@ class AboutMeScreenController extends GetxController {
 
   bool isLoading = false;
 
-  Future<void> updateBio(BuildContext context, String bio) async {
+  Future<void> updateBio(BuildContext context, String bio, bool? fromEdit) async {
     if (isLoading) return;
 
     isLoading = true;
@@ -32,8 +33,12 @@ class AboutMeScreenController extends GetxController {
         }
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          await StorageService.setProfileStep(4);
-          Get.to(() => const SelectDobScreen());
+          if (fromEdit == true) {
+            Get.off(() => const EditProfileScreen(), transition: Transition.noTransition);
+          } else {
+            await StorageService.setProfileStep(4);
+            Get.to(() => const SelectDobScreen(), transition: Transition.noTransition);
+          }
         } else {
           final errorMessage = _apiController.getErrorMessage(response);
           showSnackBar(context, errorMessage, isErrorMessageDisplay: true);

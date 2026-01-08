@@ -83,6 +83,7 @@ class User {
   final String? kidsStatus;
   final String? city;
   final String? country;
+  final String? introVideo;
 
   User({
     this.email,
@@ -136,6 +137,7 @@ class User {
     this.kidsStatus,
     this.city,
     this.country,
+    this.introVideo,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -191,6 +193,7 @@ class User {
       kidsStatus: json['kidsStatus'] as String?,
       city: json['city'] as String?,
       country: json['country'] as String?,
+      introVideo: json['introVideo'] as String?,
     );
   }
 }

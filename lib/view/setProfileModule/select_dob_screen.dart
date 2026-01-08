@@ -11,9 +11,9 @@ import '../../Common/widgets/shimmers/select_dob_screen_shimmer_widget.dart';
 import 'interests_and_hobbies.dart';
 
 class SelectDobScreen extends StatefulWidget {
-  const SelectDobScreen({
-    super.key,
-  });
+  final bool? fromEdit;
+
+  const SelectDobScreen({super.key, this.fromEdit});
 
   @override
   State<SelectDobScreen> createState() => _SelectDobScreenState();
@@ -69,7 +69,7 @@ class _SelectDobScreenState extends State<SelectDobScreen> {
                               final route = ModalRoute.of(context);
                               final isFirstRoute = route?.isFirst ?? false;
                               final canPop = Navigator.of(context).canPop();
-                              
+
                               // Show back button only if:
                               // 1. This is NOT the first route in navigation stack
                               // 2. AND Navigator can pop (has previous route)
@@ -120,7 +120,7 @@ class _SelectDobScreenState extends State<SelectDobScreen> {
                     ),
                   ),
                   AppButton(
-                    text: "Continue",
+                    text: widget.fromEdit == true ? "Save" : "Continue",
                     textStyle: CommonTextStyle.regular16w500,
                     onPressed: controller.isLoading
                         ? null
@@ -130,7 +130,7 @@ class _SelectDobScreenState extends State<SelectDobScreen> {
                                   isErrorMessageDisplay: true);
                               return;
                             }
-                            controller.updateDateOfBirth(context);
+                            controller.updateDateOfBirth(context, widget.fromEdit);
                           },
                   ).marginSymmetric(horizontal: 20, vertical: 20)
                 ],
